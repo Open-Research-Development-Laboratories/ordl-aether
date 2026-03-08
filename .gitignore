@@ -1,0 +1,55 @@
+# Secrets and local env
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+
+# Private keys and certs
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.jks
+id_rsa
+id_ed25519
+
+# Python
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+.coverage
+htmlcov/
+
+# Node / frontend
+**/node_modules/
+**/dist/
+**/build/
+**/.npm/
+**/.pnpm-store/
+**/.eslintcache
+
+# Runtime / cache / artifacts
+**/data/
+**/uploads/
+**/logs/
+**/ai_models/cache/
+**/vector_db/
+**/chroma_db/
+**/*.db
+**/*.sqlite3
+
+# Tooling and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Local captures
+ui-current.png

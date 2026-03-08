@@ -1,0 +1,14 @@
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    HF_HOME=/app/ai_models/cache
+
+WORKDIR /tmp/build
+COPY requirements.txt requirements.txt
+RUN python -m pip install --upgrade pip && \
+    pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
+
+WORKDIR /app
+COPY . /app

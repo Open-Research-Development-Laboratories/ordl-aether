@@ -1,0 +1,173 @@
+# System Architecture
+
+- Generated: `2026-03-08T03:44:58.877345+00:00`
+
+## Major Areas
+
+- `aether-system/backend`: FastAPI service, module orchestration, data ingestion, analytics, and knowledge storage.
+- `aether-system/frontend`: React + Vite dashboard for analysis workflows and system status.
+- `*.md` at repo root: NASA-inspired research corpus and technical concept docs.
+- `docs/knowledge-base`: local memory/index artifacts for exhaustive traversal.
+
+## API Endpoints
+
+- `aether-system/backend/api/routes.py:38` -> `POST /analyze/image`
+- `aether-system/backend/api/routes.py:82` -> `POST /analyze/text`
+- `aether-system/backend/api/routes.py:121` -> `POST /analyze/anomalies`
+- `aether-system/backend/api/routes.py:150` -> `POST /ingest/{source_name}`
+- `aether-system/backend/api/routes.py:172` -> `GET /ingest/sources`
+- `aether-system/backend/api/routes.py:189` -> `POST /knowledge/search`
+- `aether-system/backend/api/routes.py:213` -> `GET /knowledge/stats`
+- `aether-system/backend/api/routes.py:226` -> `GET /events/recent`
+- `aether-system/backend/api/routes.py:242` -> `POST /analyze`
+
+## Backend Symbols
+
+- `aether-system/backend/api/routes.py:19` [class] `AnalyzeRequest`
+- `aether-system/backend/api/routes.py:25` [class] `IngestRequest`
+- `aether-system/backend/api/routes.py:30` [class] `SearchRequest`
+- `aether-system/backend/api/routes.py:39` [function] `analyze_image`
+- `aether-system/backend/api/routes.py:83` [function] `analyze_text`
+- `aether-system/backend/api/routes.py:122` [function] `detect_anomalies`
+- `aether-system/backend/api/routes.py:151` [function] `ingest_data`
+- `aether-system/backend/api/routes.py:173` [function] `get_data_sources`
+- `aether-system/backend/api/routes.py:190` [function] `search_knowledge`
+- `aether-system/backend/api/routes.py:214` [function] `knowledge_stats`
+- `aether-system/backend/api/routes.py:227` [function] `get_recent_events`
+- `aether-system/backend/api/routes.py:243` [function] `unified_analysis`
+- `aether-system/backend/core/base_module.py:14` [class] `BaseModule`
+- `aether-system/backend/core/base_module.py:20` [function] `__init__`
+- `aether-system/backend/core/base_module.py:31` [function] `initialize`
+- `aether-system/backend/core/base_module.py:36` [function] `process`
+- `aether-system/backend/core/base_module.py:41` [function] `shutdown`
+- `aether-system/backend/core/base_module.py:45` [function] `get_status`
+- `aether-system/backend/core/base_module.py:53` [function] `_update_stats`
+- `aether-system/backend/core/base_module.py:60` [function] `emit_event`
+- `aether-system/backend/core/config.py:12` [class] `Settings`
+- `aether-system/backend/core/config.py:49` [class] `Config`
+- `aether-system/backend/core/event_bus.py:14` [class] `Event`
+- `aether-system/backend/core/event_bus.py:16` [function] `__init__`
+- `aether-system/backend/core/event_bus.py:32` [function] `to_dict`
+- `aether-system/backend/core/event_bus.py:44` [class] `EventBus`
+- `aether-system/backend/core/event_bus.py:49` [function] `__init__`
+- `aether-system/backend/core/event_bus.py:59` [function] `subscribe`
+- `aether-system/backend/core/event_bus.py:64` [function] `unsubscribe`
+- `aether-system/backend/core/event_bus.py:69` [function] `publish`
+- `aether-system/backend/core/event_bus.py:100` [function] `get_stats`
+- `aether-system/backend/core/event_bus.py:109` [function] `get_recent_events`
+- `aether-system/backend/core/scheduler.py:15` [class] `Scheduler`
+- `aether-system/backend/core/scheduler.py:18` [function] `__init__`
+- `aether-system/backend/core/scheduler.py:26` [function] `start`
+- `aether-system/backend/core/scheduler.py:32` [function] `stop`
+- `aether-system/backend/core/scheduler.py:38` [function] `_run_loop`
+- `aether-system/backend/core/scheduler.py:44` [function] `add_job`
+- `aether-system/backend/core/scheduler.py:63` [function] `get_stats`
+- `aether-system/backend/knowledge/database.py:30` [class] `KnowledgeItem`
+- `aether-system/backend/knowledge/database.py:46` [class] `KnowledgeBase`
+- `aether-system/backend/knowledge/database.py:52` [function] `__init__`
+- `aether-system/backend/knowledge/database.py:58` [function] `initialize`
+- `aether-system/backend/knowledge/database.py:83` [function] `store`
+- `aether-system/backend/knowledge/database.py:138` [function] `search`
+- `aether-system/backend/knowledge/database.py:217` [function] `get_stats`
+- `aether-system/backend/knowledge/database.py:243` [function] `init_db`
+- `aether-system/backend/main.py:34` [class] `AetherCore`
+- `aether-system/backend/main.py:39` [function] `__init__`
+- `aether-system/backend/main.py:45` [function] `initialize`
+- `aether-system/backend/main.py:72` [function] `shutdown`
+- `aether-system/backend/main.py:89` [function] `lifespan`
+- `aether-system/backend/main.py:118` [function] `health_check`
+- `aether-system/backend/main.py:128` [function] `system_status`
+- `aether-system/backend/modules/anomaly_detection.py:26` [class] `AnomalyDetectionModule`
+- `aether-system/backend/modules/anomaly_detection.py:32` [function] `__init__`
+- `aether-system/backend/modules/anomaly_detection.py:38` [function] `initialize`
+- `aether-system/backend/modules/anomaly_detection.py:53` [function] `process`
+- `aether-system/backend/modules/anomaly_detection.py:137` [function] `_prepare_data`
+- `aether-system/backend/modules/anomaly_detection.py:148` [function] `_statistical_detection`
+- `aether-system/backend/modules/anomaly_detection.py:183` [function] `_isolation_forest_detection`
+- `aether-system/backend/modules/anomaly_detection.py:215` [function] `_trend_detection`
+- `aether-system/backend/modules/anomaly_detection.py:237` [function] `_combine_detections`
+- `aether-system/backend/modules/anomaly_detection.py:270` [function] `_calculate_severity`
+- `aether-system/backend/modules/anomaly_detection.py:282` [function] `shutdown`
+- `aether-system/backend/modules/data_ingestion.py:32` [class] `DataSource`
+- `aether-system/backend/modules/data_ingestion.py:46` [class] `DataRecord`
+- `aether-system/backend/modules/data_ingestion.py:58` [class] `DataIngestionModule`
+- `aether-system/backend/modules/data_ingestion.py:64` [function] `__init__`
+- `aether-system/backend/modules/data_ingestion.py:71` [function] `initialize`
+- `aether-system/backend/modules/data_ingestion.py:89` [function] `_register_default_sources`
+- `aether-system/backend/modules/data_ingestion.py:123` [function] `process`
+- `aether-system/backend/modules/data_ingestion.py:154` [function] `_fetch_nasa_apod`
+- `aether-system/backend/modules/data_ingestion.py:206` [function] `_fetch_weather`
+- `aether-system/backend/modules/data_ingestion.py:240` [function] `_process_file`
+- `aether-system/backend/modules/data_ingestion.py:300` [function] `get_sources`
+- `aether-system/backend/modules/data_ingestion.py:319` [function] `shutdown`
+- `aether-system/backend/modules/image_analysis.py:25` [class] `ImageAnalysisModule`
+- `aether-system/backend/modules/image_analysis.py:30` [function] `__init__`
+- `aether-system/backend/modules/image_analysis.py:36` [function] `initialize`
+- `aether-system/backend/modules/image_analysis.py:69` [function] `process`
+- `aether-system/backend/modules/image_analysis.py:130` [function] `_load_image`
+- `aether-system/backend/modules/image_analysis.py:141` [function] `_classify`
+- `aether-system/backend/modules/image_analysis.py:153` [function] `_detect_objects`
+- `aether-system/backend/modules/image_analysis.py:165` [function] `_generate_embedding`
+- `aether-system/backend/modules/image_analysis.py:172` [function] `_categorize_label`
+- `aether-system/backend/modules/image_analysis.py:187` [function] `shutdown`
+- `aether-system/backend/modules/text_intelligence.py:23` [class] `TextIntelligenceModule`
+- `aether-system/backend/modules/text_intelligence.py:29` [function] `__init__`
+- `aether-system/backend/modules/text_intelligence.py:37` [function] `initialize`
+- `aether-system/backend/modules/text_intelligence.py:85` [function] `process`
+- `aether-system/backend/modules/text_intelligence.py:163` [function] `_summarize`
+- `aether-system/backend/modules/text_intelligence.py:182` [function] `_extract_entities`
+- `aether-system/backend/modules/text_intelligence.py:204` [function] `_analyze_sentiment`
+- `aether-system/backend/modules/text_intelligence.py:213` [function] `_classify`
+- `aether-system/backend/modules/text_intelligence.py:224` [function] `_generate_embedding`
+- `aether-system/backend/modules/text_intelligence.py:231` [function] `_extract_keywords`
+- `aether-system/backend/modules/text_intelligence.py:240` [function] `shutdown`
+
+## Frontend Symbols
+
+- `aether-system/frontend/src/App.jsx:16` [function] `App`
+- `aether-system/frontend/src/App.jsx:22` [const] `interval`
+- `aether-system/frontend/src/App.jsx:26` [const] `checkSystemStatus`
+- `aether-system/frontend/src/App.jsx:28` [const] `response`
+- `aether-system/frontend/src/components/Layout.jsx:16` [const] `navItems`
+- `aether-system/frontend/src/components/Layout.jsx:25` [function] `Layout`
+- `aether-system/frontend/src/components/Layout.jsx:27` [const] `location`
+- `aether-system/frontend/src/components/Layout.jsx:29` [const] `isActive`
+- `aether-system/frontend/src/components/Layout.jsx:55` [const] `Icon`
+- `aether-system/frontend/src/components/Layout.jsx:56` [const] `active`
+- `aether-system/frontend/src/pages/AnomalyDetection.jsx:6` [function] `AnomalyDetection`
+- `aether-system/frontend/src/pages/AnomalyDetection.jsx:12` [const] `detectAnomalies`
+- `aether-system/frontend/src/pages/AnomalyDetection.jsx:19` [const] `response`
+- `aether-system/frontend/src/pages/AnomalyDetection.jsx:35` [const] `getChartData`
+- `aether-system/frontend/src/pages/AnomalyDetection.jsx:38` [const] `values`
+- `aether-system/frontend/src/pages/AnomalyDetection.jsx:39` [const] `anomalyIndices`
+- `aether-system/frontend/src/pages/AnomalyDetection.jsx:48` [const] `getSeverityColor`
+- `aether-system/frontend/src/pages/Dashboard.jsx:25` [function] `StatCard`
+- `aether-system/frontend/src/pages/Dashboard.jsx:26` [const] `colors`
+- `aether-system/frontend/src/pages/Dashboard.jsx:55` [function] `RecentEvents`
+- `aether-system/frontend/src/pages/Dashboard.jsx:87` [function] `Dashboard`
+- `aether-system/frontend/src/pages/Dashboard.jsx:100` [const] `interval`
+- `aether-system/frontend/src/pages/Dashboard.jsx:104` [const] `fetchDashboardData`
+- `aether-system/frontend/src/pages/Dashboard.jsx:107` [const] `kbResponse`
+- `aether-system/frontend/src/pages/Dashboard.jsx:108` [const] `kbStats`
+- `aether-system/frontend/src/pages/Dashboard.jsx:111` [const] `eventsResponse`
+- `aether-system/frontend/src/pages/Dashboard.jsx:121` [const] `mockData`
+- `aether-system/frontend/src/pages/ImageAnalysis.jsx:6` [function] `ImageAnalysis`
+- `aether-system/frontend/src/pages/ImageAnalysis.jsx:13` [const] `onDrop`
+- `aether-system/frontend/src/pages/ImageAnalysis.jsx:14` [const] `selectedFile`
+- `aether-system/frontend/src/pages/ImageAnalysis.jsx:31` [const] `analyzeImage`
+- `aether-system/frontend/src/pages/ImageAnalysis.jsx:38` [const] `formData`
+- `aether-system/frontend/src/pages/ImageAnalysis.jsx:42` [const] `response`
+- `aether-system/frontend/src/pages/KnowledgeBase.jsx:5` [function] `KnowledgeBase`
+- `aether-system/frontend/src/pages/KnowledgeBase.jsx:16` [const] `fetchStats`
+- `aether-system/frontend/src/pages/KnowledgeBase.jsx:18` [const] `response`
+- `aether-system/frontend/src/pages/KnowledgeBase.jsx:25` [const] `searchKnowledge`
+- `aether-system/frontend/src/pages/KnowledgeBase.jsx:32` [const] `response`
+- `aether-system/frontend/src/pages/KnowledgeBase.jsx:46` [const] `getTypeIcon`
+- `aether-system/frontend/src/pages/KnowledgeBase.jsx:55` [const] `getTypeColor`
+- `aether-system/frontend/src/pages/KnowledgeBase.jsx:140` [const] `Icon`
+- `aether-system/frontend/src/pages/SystemStatus.jsx:5` [function] `SystemStatus`
+- `aether-system/frontend/src/pages/SystemStatus.jsx:12` [const] `interval`
+- `aether-system/frontend/src/pages/SystemStatus.jsx:16` [const] `fetchStatus`
+- `aether-system/frontend/src/pages/TextAnalysis.jsx:5` [function] `TextAnalysis`
+- `aether-system/frontend/src/pages/TextAnalysis.jsx:11` [const] `analyzeText`
+- `aether-system/frontend/src/pages/TextAnalysis.jsx:18` [const] `response`

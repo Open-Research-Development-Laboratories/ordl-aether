@@ -1,0 +1,66 @@
+services:
+  backend:
+    build: ./backend
+    image: aether-backend:local
+    container_name: aether-backend
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./data:/app/data
+      - ./ai_models:/app/ai_models
+    env_file:
+      - .env
+    environment:
+      DEBUG: ${DEBUG:-false}
+      HOST: 0.0.0.0
+      PORT: 8000
+      NASA_API_KEY: ${NASA_API_KEY:-DEMO_KEY}
+      HF_HOME: /app/ai_models/cache
+      PREWARM_MODELS: ${PREWARM_MODELS:-false}
+    command: python main.py
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready', timeout=5)"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build: ./frontend
+    image: aether-frontend:local
+    container_name: aether-frontend
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+    command: >
+      sh -c "if [ ! -d node_modules/.bin ]; then npm ci --no-audit --no-fund; fi &&
+             npm run dev -- --host 0.0.0.0 --port 3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: aether-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  frontend_node_modules:
+  redis_data:
