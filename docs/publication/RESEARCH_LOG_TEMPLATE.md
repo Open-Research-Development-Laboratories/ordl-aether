@@ -1,3 +1,5 @@
+Back to index: [../INDEX.md](../INDEX.md) | [Publication Program](README.md)
+
 # Research Log Template
 
 ## Experiment

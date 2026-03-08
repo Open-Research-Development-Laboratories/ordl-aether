@@ -1,34 +1,29 @@
-# ORDL Publication Ground
+# ORDL Publication Program
 
-This directory is the public R&D surface for the ORDL AETHER program.
+Back to index: [../INDEX.md](../INDEX.md) | [Research Index](../research/README.md)
 
-## Purpose
+This directory contains publication process artifacts that convert engineering and research execution into structured, review-ready outputs.
 
-- Publish technical work as reproducible engineering artifacts.
-- Track experiments, evaluations, and model performance over time.
-- Keep architecture and research outputs aligned with shipped code.
+## Program Documents
 
-## Structure
+- [R&D Program Map](RD_PROGRAM_MAP.md)
+- [Evaluation Protocol](EVALUATION_PROTOCOL.md)
+- [Model Card Template](MODEL_CARD_TEMPLATE.md)
+- [Release Notes Template](RELEASE_NOTES_TEMPLATE.md)
+- [Research Log Template](RESEARCH_LOG_TEMPLATE.md)
+- [Whitepaper Legacy Redirect](WHITEPAPER_DRAFT.md)
 
-- `WHITEPAPER_DRAFT.md` - primary technical narrative.
-- `RD_PROGRAM_MAP.md` - active tracks and milestones.
-- `EVALUATION_PROTOCOL.md` - benchmark and evaluation rules.
-- `MODEL_CARD_TEMPLATE.md` - model transparency template.
-- `RELEASE_NOTES_TEMPLATE.md` - release write-up template.
-- `RESEARCH_LOG_TEMPLATE.md` - per-experiment logging template.
-- `ingestion/` - machine-generated ingestion reports and manifests.
+## White Paper
 
-## Ingestion
+The current white paper is maintained in the indexed research location:
 
-Use the unified ingestor to capture company docs and recent AI research:
+- [ORDL AETHER Research White Paper](../research/white-paper/ordl-aether-research-white-paper.md)
 
-```bash
-python scripts/ingest_corpora.py
-```
+## Operating Principle
 
-Example with larger research window:
+Every major system or model change should have:
 
-```bash
-python scripts/ingest_corpora.py --arxiv-days 365 --arxiv-max-records 5000
-```
-
+1. Evidence from repeatable evaluation.
+2. Program context in the research log.
+3. Release-level summary suitable for external review.
+4. Updated white paper narrative where architecture or capability meaningfully changes.

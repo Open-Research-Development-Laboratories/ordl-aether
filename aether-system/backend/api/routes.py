@@ -4,6 +4,7 @@ RESTful API for all system operations
 """
 import asyncio
 import logging
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
@@ -208,6 +209,11 @@ class SearchRequest(BaseModel):
     item_type: Optional[str] = None
     source: Optional[str] = None
     limit: int = 10
+
+
+class KnowledgeEnrichRequest(BaseModel):
+    force: bool = False
+    max_chars: int = Field(default=3500, ge=500, le=12000)
 
 
 # Image Analysis Endpoints
@@ -468,6 +474,87 @@ async def knowledge_stats():
         raise
     except Exception as e:
         logger.error(f"Knowledge stats endpoint error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/knowledge/enrich/{item_id}")
+async def enrich_knowledge_item(item_id: int, request: KnowledgeEnrichRequest):
+    """Run text intelligence over an existing knowledge record and persist structured metadata."""
+    try:
+        item = await knowledge_base.get_item(item_id)
+        if not item:
+            raise HTTPException(status_code=404, detail="Knowledge item not found")
+
+        metadata = item.get("metadata") or {}
+        if metadata.get("analysis") and not request.force:
+            return {"enriched": False, "reason": "already_enriched", "item": item}
+
+        raw_text = (item.get("full_content") or item.get("content") or "").strip()
+        if not raw_text:
+            raise HTTPException(status_code=400, detail="Knowledge item has no text content")
+
+        aether_core = get_aether_core()
+        module = aether_core.modules.get("text_intelligence")
+        if not module:
+            raise HTTPException(status_code=503, detail="Text intelligence module not available")
+
+        trimmed_text = raw_text[: request.max_chars]
+        result = await asyncio.wait_for(
+            module.process(
+                trimmed_text,
+                context={
+                    "source": "knowledge_enrich",
+                    "item_id": item_id,
+                    "title": item.get("title"),
+                    "tasks": ["summarize", "sentiment", "ner", "keywords", "classify"],
+                },
+            ),
+            timeout=settings.ANALYSIS_TIMEOUT_SECONDS,
+        )
+
+        if not result.get("success"):
+            raise HTTPException(status_code=400, detail=result.get("error") or "Enrichment failed")
+
+        safe_result = knowledge_base._json_safe(result)
+        summary = (safe_result.get("summary") or {}).get("text")
+        if not summary:
+            summary = " ".join(trimmed_text.split())[:420]
+        sentiment = safe_result.get("sentiment") or {}
+        entities = safe_result.get("entities") or []
+        keywords = safe_result.get("keywords") or []
+        classification = safe_result.get("classification") or {}
+        if isinstance(classification, list):
+            classification = {}
+
+        metadata["analysis"] = {
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "summary": summary,
+            "sentiment": sentiment,
+            "entities": entities,
+            "keywords": keywords,
+            "classification": classification,
+            "text_length": safe_result.get("text_length"),
+            "word_count": safe_result.get("word_count"),
+            "models": {
+                "summary": settings.DEFAULT_TEXT_MODEL,
+                "ner": "dslim/bert-base-NER",
+                "sentiment": "distilbert-base-uncased-finetuned-sst-2-english",
+                "classification": "facebook/bart-large-mnli",
+            },
+        }
+
+        if summary and not metadata.get("summary"):
+            metadata["summary"] = {"text": summary}
+
+        updated_item = await knowledge_base.update_item(item_id, metadata=metadata)
+        return {"enriched": True, "item": updated_item}
+
+    except HTTPException:
+        raise
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="Knowledge enrichment timed out")
+    except Exception as e:
+        logger.error(f"Knowledge enrich endpoint error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

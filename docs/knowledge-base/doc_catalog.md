@@ -1,18 +1,33 @@
-# Markdown Document Catalog
+# Knowledge Base Document Catalog
 
-- Generated: `2026-03-08T03:44:58.595660+00:00`
-- Markdown files: `13`
+Back to index: [../INDEX.md](../INDEX.md)
 
-- `NASA_Earth_Science_AI_Integration_Analysis.md` -> NASA Earth Science & Remote Sensing Projects: AI Integration Analysis
-- `README.md` -> ordl-aether
-- `STARTER_NASA_AI_SYSTEM.md` -> NASA-Inspired Unified AI Starter System
-- `THE_ULTIMATE_NASA_AI_SYSTEM.md` -> COSMOS: Cognitive Omniscient System for Multi-domain Operations & Synthesis
-- `aether-system/PROJECT_SUMMARY.md` -> AETHER Project Summary
-- `aether-system/README.md` -> AETHER - Adaptive Earth & Technology Harmonization Engine
-- `aether-system/SETUP.md` -> AETHER Setup Guide
-- `nasa_ai_integration_summary.md` -> NASA Data Systems AI Integration - Executive Summary
-- `nasa_ai_integration_technical_spec.md` -> NASA Simulation AI Integration: Technical Specification
-- `nasa_data_systems_ai_integration_analysis.md` -> NASA Data Systems and Information Management Projects: AI Integration Analysis
-- `nasa_robotics_ai_integration_analysis.md` -> NASA Robotics, Autonomy, and AI/ML Projects: Integration Analysis Report
-- `nasa_simulation_ai_integration_analysis.md` -> NASA Simulation, Modeling & Virtual Environment Projects: AI Integration Analysis
-- `nasa_space_ai_integration_analysis.md` -> NASA Space Exploration & Spacecraft Projects: AI Integration Analysis
+This catalog points to the actively maintained documentation surfaces for AETHER.
+
+## Core Navigation
+
+- [Repository Overview](../../README.md)
+- [Documentation Hub](../README.md)
+- [Full Markdown Index](../INDEX.md)
+- [Research Index](../research/README.md)
+
+## Knowledge Base and Audit Documents
+
+- [Knowledge Base Overview](knowledge_base_overview.md)
+- [System Architecture Notes](system_architecture.md)
+- [MCP Server Audit](mcp_server_audit.md)
+- [Review Findings](review_findings.md)
+- [External Research Notes](external_research_notes.md)
+- [Full File Ledger](full_file_ledger.md)
+
+## Publication and Evaluation Documents
+
+- [Publication Program](../publication/README.md)
+- [Evaluation Protocol](../publication/EVALUATION_PROTOCOL.md)
+- [R&D Program Map](../publication/RD_PROGRAM_MAP.md)
+
+## Runtime Documents
+
+- [Runtime README](../../aether-system/README.md)
+- [Project Summary](../../aether-system/PROJECT_SUMMARY.md)
+- [Setup Guide](../../aether-system/SETUP.md)

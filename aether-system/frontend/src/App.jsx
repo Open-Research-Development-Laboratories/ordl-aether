@@ -49,6 +49,7 @@ function App() {
         system: healthPayload?.system || current?.system || 'AETHER',
         version: healthPayload?.version || current?.version || '1.0.0',
         coreInitialized: statusPayload?.core_initialized ?? current?.coreInitialized ?? false,
+        core_initialized: statusPayload?.core_initialized ?? current?.core_initialized ?? false,
         modules: statusPayload?.modules || current?.modules || {},
         eventBus: statusPayload?.event_bus || current?.eventBus || {},
         scheduler: statusPayload?.scheduler || current?.scheduler || {},

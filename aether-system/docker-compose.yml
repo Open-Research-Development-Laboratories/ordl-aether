@@ -1,6 +1,8 @@
 services:
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Containerfile
     image: aether-backend:local
     container_name: aether-backend
     working_dir: /app
@@ -28,14 +30,17 @@ services:
           "CMD",
           "python",
           "-c",
-          "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready', timeout=5)"
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready', timeout=20)"
         ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      interval: 45s
+      timeout: 30s
+      retries: 5
+      start_period: 60s
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Containerfile
     image: aether-frontend:local
     container_name: aether-frontend
     working_dir: /app

@@ -57,9 +57,9 @@ function AnomalyDetection() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold gradient-text">Anomaly Detection</h1>
+        <h1 className="text-3xl font-bold gradient-text">ANOMALY DETECTION / 異常検出</h1>
         <p className="text-text-secondary mt-1">
-          Multi-algorithm time-series outlier detection
+          PATTERN ANALYSIS / パターン解析
         </p>
       </div>
 

@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+
+{% block title %}ダッシュボード / Dashboard{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<header class="ordl-page-header">
+    <h1 class="ordl-page-title">
+        <span class="ordl-page-title-jp">ダッシュボード</span>
+        <span class="ordl-page-title-en">/ Dashboard</span>
+    </h1>
+    <p class="ordl-page-subtitle">
+        統合AIシステム概要 / NASA-Inspired Unified AI System Overview
+    </p>
+</header>
+
+<!-- Stats Grid -->
+<div class="ordl-grid ordl-grid-4 ordl-mb-lg">
+    <!-- Stat Card: Images -->
+    <div class="ordl-stat">
+        <div class="ordl-stat-header">
+            <div class="ordl-stat-label">
+                処理画像数
+                <span class="ordl-stat-label-en">Images Processed</span>
+            </div>
+            <div class="ordl-stat-ascii">[IMG]</div>
+        </div>
+        <div class="ordl-stat-value">2,847</div>
+        <div class="ordl-stat-footer">
+            Computer vision analyses
+        </div>
+    </div>
+    
+    <!-- Stat Card: Texts -->
+    <div class="ordl-stat">
+        <div class="ordl-stat-header">
+            <div class="ordl-stat-label">
+                テキスト分析
+                <span class="ordl-stat-label-en">Texts Analyzed</span>
+            </div>
+            <div class="ordl-stat-ascii">[TXT]</div>
+        </div>
+        <div class="ordl-stat-value">5,621</div>
+        <div class="ordl-stat-footer">
+            NLP operations
+        </div>
+    </div>
+    
+    <!-- Stat Card: Anomalies -->
+    <div class="ordl-stat">
+        <div class="ordl-stat-header">
+            <div class="ordl-stat-label">
+                異常検出
+                <span class="ordl-stat-label-en">Anomalies Detected</span>
+            </div>
+            <div class="ordl-stat-ascii">[ANM]</div>
+        </div>
+        <div class="ordl-stat-value">441</div>
+        <div class="ordl-stat-footer">
+            Pattern deviations found
+        </div>
+    </div>
+    
+    <!-- Stat Card: Knowledge -->
+    <div class="ordl-stat">
+        <div class="ordl-stat-header">
+            <div class="ordl-stat-label">
+                知識項目
+                <span class="ordl-stat-label-en">Knowledge Items</span>
+            </div>
+            <div class="ordl-stat-ascii">[KNW]</div>
+        </div>
+        <div class="ordl-stat-value">4,211</div>
+        <div class="ordl-stat-footer">
+            Stored in database
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="ordl-grid ordl-grid-2">
+    <!-- Activity Chart -->
+    <div class="ordl-card">
+        <div class="ordl-card-header">
+            <span class="ordl-card-title">
+                システムアクティビティ / System Activity (24h)
+            </span>
+            <span class="ordl-mono ordl-small ordl-muted">[■] LIVE</span>
+        </div>
+        <div class="ordl-card-body">
+            <div class="ordl-chart-container">
+                <canvas id="activity-chart" class="ordl-chart"></canvas>
+            </div>
+            <div class="ordl-ascii-divider">
+                +----+----+----+----+----+----+----+----+----+----+----+----+
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Events -->
+    <div class="ordl-card">
+        <div class="ordl-card-header">
+            <span class="ordl-card-title">
+                最近のイベント / Recent Events
+            </span>
+            <span class="ordl-mono ordl-small ordl-muted">10 items</span>
+        </div>
+        <div class="ordl-card-body">
+            <ul class="ordl-list" id="recent-events">
+                <li class="ordl-list-item">
+                    <span>[■]</span>
+                    <span>analysis_complete</span>
+                    <span class="ordl-muted">vision_module</span>
+                    <span class="ordl-muted ordl-blink">●</span>
+                </li>
+                <li class="ordl-list-item">
+                    <span>[■]</span>
+                    <span>model_loaded</span>
+                    <span class="ordl-muted">nlp_module</span>
+                    <span class="ordl-muted">12s ago</span>
+                </li>
+                <li class="ordl-list-item">
+                    <span>[ ]</span>
+                    <span>anomaly_detected</span>
+                    <span class="ordl-muted">anomaly_module</span>
+                    <span class="ordl-muted">45s ago</span>
+                </li>
+                <li class="ordl-list-item">
+                    <span>[■]</span>
+                    <span>analysis_complete</span>
+                    <span class="ordl-muted">system_core</span>
+                    <span class="ordl-muted">2m ago</span>
+                </li>
+                <li class="ordl-list-item">
+                    <span>[◐]</span>
+                    <span>warning</span>
+                    <span class="ordl-muted">vision_module</span>
+                    <span class="ordl-muted">5m ago</span>
+                </li>
+                <li class="ordl-list-item">
+                    <span>[■]</span>
+                    <span>analysis_complete</span>
+                    <span class="ordl-muted">nlp_module</span>
+                    <span class="ordl-muted">8m ago</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Module Status -->
+<div class="ordl-card ordl-mb-lg">
+    <div class="ordl-card-header">
+        <span class="ordl-card-title">
+            アクティブモジュール / Active Modules
+        </span>
+        <span class="ordl-mono ordl-small ordl-muted">3/3 ONLINE</span>
+    </div>
+    <div class="ordl-card-body">
+        <div class="ordl-grid ordl-grid-3">
+            <!-- Vision Module -->
+            <div class="ordl-sysinfo">
+                <div class="ordl-flex ordl-flex-between ordl-items-center ordl-mb-md">
+                    <div class="ordl-flex ordl-gap-sm ordl-items-center">
+                        <span class="ordl-status-indicator active"></span>
+                        <span class="ordl-jp">ビジョン</span>
+                    </div>
+                    <span class="ordl-mono ordl-small">[■]</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">STATUS</span>
+                    <span class="ordl-sysinfo-value">INITIALIZED</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">OPERATIONS</span>
+                    <span class="ordl-sysinfo-value">2,847</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">ERRORS</span>
+                    <span class="ordl-sysinfo-value">12</span>
+                </div>
+                <div class="ordl-mb-sm"></div>
+                <div class="ordl-flex ordl-gap-sm">
+                    <span class="ordl-tag">vit_base</span>
+                    <span class="ordl-tag">detr_resnet50</span>
+                </div>
+            </div>
+            
+            <!-- NLP Module -->
+            <div class="ordl-sysinfo">
+                <div class="ordl-flex ordl-flex-between ordl-items-center ordl-mb-md">
+                    <div class="ordl-flex ordl-gap-sm ordl-items-center">
+                        <span class="ordl-status-indicator active"></span>
+                        <span class="ordl-jp">言語処理</span>
+                    </div>
+                    <span class="ordl-mono ordl-small">[■]</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">STATUS</span>
+                    <span class="ordl-sysinfo-value">INITIALIZED</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">OPERATIONS</span>
+                    <span class="ordl-sysinfo-value">5,621</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">ERRORS</span>
+                    <span class="ordl-sysinfo-value">3</span>
+                </div>
+                <div class="ordl-mb-sm"></div>
+                <div class="ordl-flex ordl-gap-sm">
+                    <span class="ordl-tag">bert_base</span>
+                    <span class="ordl-tag">gpt2_medium</span>
+                </div>
+            </div>
+            
+            <!-- Anomaly Module -->
+            <div class="ordl-sysinfo">
+                <div class="ordl-flex ordl-flex-between ordl-items-center ordl-mb-md">
+                    <div class="ordl-flex ordl-gap-sm ordl-items-center">
+                        <span class="ordl-status-indicator active"></span>
+                        <span class="ordl-jp">異常検出</span>
+                    </div>
+                    <span class="ordl-mono ordl-small">[■]</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">STATUS</span>
+                    <span class="ordl-sysinfo-value">INITIALIZED</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">OPERATIONS</span>
+                    <span class="ordl-sysinfo-value">1,934</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">ERRORS</span>
+                    <span class="ordl-sysinfo-value">0</span>
+                </div>
+                <div class="ordl-mb-sm"></div>
+                <div class="ordl-flex ordl-gap-sm">
+                    <span class="ordl-tag">isolation_forest</span>
+                    <span class="ordl-tag">lof_detector</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ASCII Divider -->
+<div class="ordl-ascii-divider">
+    ======== ========= ======== ========= ======== ========= ========
+</div>
+
+{% block extra_js %}
+<script>
+    // Activity Chart (Canvas-based ASCII-style chart)
+    (function() {
+        const canvas = document.getElementById('activity-chart');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        
+        function resize() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+        }
+        
+        function drawChart() {
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            const padding = 40;
+            const chartWidth = width - padding * 2;
+            const chartHeight = height - padding * 2;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Grid lines
+            ctx.strokeStyle = '#1A1A1A';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (chartHeight / 5) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+            
+            // Generate sample data
+            const hours = 24;
+            const data1 = Array.from({length: hours}, () => Math.random() * 20 + 5);
+            const data2 = Array.from({length: hours}, () => Math.random() * 10 + 1);
+            
+            // Draw line 1 (analyses)
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            data1.forEach((val, i) => {
+                const x = padding + (chartWidth / (hours - 1)) * i;
+                const y = padding + chartHeight - (val / 30) * chartHeight;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // Draw line 2 (events)
+            ctx.strokeStyle = '#808080';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            data2.forEach((val, i) => {
+                const x = padding + (chartWidth / (hours - 1)) * i;
+                const y = padding + chartHeight - (val / 30) * chartHeight;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // X-axis labels
+            ctx.fillStyle = '#808080';
+            ctx.font = '10px "JetBrains Mono"';
+            ctx.textAlign = 'center';
+            
+            for (let i = 0; i < hours; i += 4) {
+                const x = padding + (chartWidth / (hours - 1)) * i;
+                ctx.fillText(i + ':00', x, height - 10);
+            }
+        }
+        
+        resize();
+        drawChart();
+        window.addEventListener('resize', () => {
+            resize();
+            drawChart();
+        });
+    })();</script>
+{% endblock %}
+{% endblock %}

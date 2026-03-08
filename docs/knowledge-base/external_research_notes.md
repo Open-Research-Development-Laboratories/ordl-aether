@@ -1,3 +1,5 @@
+Back to index: [../INDEX.md](../INDEX.md) | [Knowledge Base Catalog](doc_catalog.md)
+
 # External Research Notes
 
 - Generated: `2026-03-08T03:44:58.878435+00:00`

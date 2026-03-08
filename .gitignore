@@ -40,6 +40,7 @@ htmlcov/
 **/vector_db/
 **/chroma_db/
 **/*.db
+**/*.sqlite
 **/*.sqlite3
 
 # Tooling and editor files
@@ -53,3 +54,20 @@ Thumbs.db
 
 # Local captures
 ui-current.png
+
+# Private ingestion / acquisition tooling (local-only)
+scripts/ingest_*.py
+scripts/bulk_enrich_knowledge.py
+scripts/build_knowledge_index.py
+scripts/query_knowledge_index.py
+
+# Ingestion run artifacts (local-only)
+tmp/enrichment/
+
+# Internal knowledge index artifacts (local-only)
+docs/knowledge-base/file_index.csv
+docs/knowledge-base/repo_manifest.json
+docs/knowledge-base/*.sqlite
+
+# Internal ingestion logs (local-only)
+docs/publication/ingestion/*.json

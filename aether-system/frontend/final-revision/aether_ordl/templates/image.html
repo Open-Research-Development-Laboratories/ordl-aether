@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}画像分析 / Image Analysis{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<header class="ordl-page-header">
+    <h1 class="ordl-page-title">
+        <span class="ordl-page-title-jp">画像分析</span>
+        <span class="ordl-page-title-en">/ Image Analysis</span>
+    </h1>
+    <p class="ordl-page-subtitle">
+        コンピュータビジョン / Computer vision powered by Vision Transformers
+    </p>
+</header>
+
+<!-- Upload Area -->
+<div class="ordl-card ordl-mb-lg">
+    <div class="ordl-card-header">
+        <span class="ordl-card-title">
+            画像アップロード / Image Upload
+        </span>
+        <span class="ordl-mono ordl-small ordl-muted">PNG, JPG, GIF</span>
+    </div>
+    <div class="ordl-card-body">
+        <div class="ordl-upload" id="upload-zone">
+            <div class="ordl-upload-icon"></div>
+            <div class="ordl-ascii-box">
+    +------------------+
+    |   DRAG & DROP   |
+    |     IMAGE        |
+    +------------------+
+            </div>
+            <p class="ordl-muted ordl-mono ordl-small ordl-mb-md">
+                or click to select / クリックして選択
+            </p>
+            <input type="file" id="image-input" accept="image/*" style="display: none;">
+        </div>
+    </div>
+</div>
+
+<!-- Preview & Analyze -->
+<div id="preview-section" class="ordl-card ordl-mb-lg" style="display: none;">
+    <div class="ordl-card-header">
+        <span class="ordl-card-title">
+            プレビュー / Preview
+        </span>
+        <span class="ordl-mono ordl-small ordl-muted" id="file-info"></span>
+    </div>
+    <div class="ordl-card-body">
+        <div class="ordl-grid ordl-grid-2">
+            <div>
+                <img id="image-preview" class="ordl-border" style="max-width: 100%; display: block;">
+            </div>
+            
+            <div class="ordl-flex ordl-flex-col ordl-gap-md" style="justify-content: center;">
+                <button id="analyze-btn" class="ordl-btn">
+                    <span>[■]</span>
+                    <span>分析実行 / ANALYZE</span>
+                </button>
+                
+                <div class="ordl-muted ordl-small ordl-mono">
+                    <p>Powered by Vision Transformer (ViT)</p>
+                    <p>First run may take a few minutes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results -->
+<div id="results-section" class="ordl-card" style="display: none;">
+    <div class="ordl-card-header">
+        <span class="ordl-card-title">
+            分析結果 / Analysis Results
+        </span>
+        <span class="ordl-mono ordl-small ordl-muted">[■] COMPLETE</span>
+    </div>
+    <div class="ordl-card-body">
+        <div class="ordl-grid ordl-grid-2">
+            <!-- Classifications -->
+            <div class="ordl-sysinfo">
+                <h3 class="ordl-section-title">Classifications</h3>
+                
+                <div class="ordl-progress ordl-mb-md">
+                    <span class="ordl-mono ordl-small">digital_computer</span>
+                    <div class="ordl-progress-bar">
+                        <div class="ordl-progress-fill" style="width: 94.3%"></div>
+                    </div>
+                    <span class="ordl-mono ordl-small">94.3%</span>
+                </div>
+                
+                <div class="ordl-progress ordl-mb-md">
+                    <span class="ordl-mono ordl-small">screen</span>
+                    <div class="ordl-progress-bar">
+                        <div class="ordl-progress-fill" style="width: 89.1%"></div>
+                    </div>
+                    <span class="ordl-mono ordl-small">89.1%</span>
+                </div>
+                
+                <div class="ordl-progress ordl-mb-md">
+                    <span class="ordl-mono ordl-small">desk</span>
+                    <div class="ordl-progress-bar">
+                        <div class="ordl-progress-fill" style="width: 75.6%"></div>
+                    </div>
+                    <span class="ordl-mono ordl-small">75.6%</span>
+                </div>
+            </div>
+            
+            <!-- Detections -->
+            <div class="ordl-sysinfo">
+                <h3 class="ordl-section-title">Object Detections</h3>
+                
+                <ul class="ordl-list">
+                    <li class="ordl-list-item">
+                        <span>[■]</span>
+                        <span>monitor</span>
+                        <span class="ordl-muted">98.7%</span>
+                    </li>
+                    <li class="ordl-list-item">
+                        <span>[■]</span>
+                        <span>keyboard</span>
+                        <span class="ordl-muted">92.3%</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="ordl-ascii-divider">
+            -------- -------- -------- -------- -------- -------- --------
+        </div>
+        
+        <!-- Image Info -->
+        <div class="ordl-sysinfo">
+            <h3 class="ordl-section-title">Image Information</h3>
+            
+            <div class="ordl-grid ordl-grid-4">
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">DIMENSIONS</span>
+                    <span class="ordl-sysinfo-value">1920 x 1080</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">ANALYSIS_TYPE</span>
+                    <span class="ordl-sysinfo-value">full</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">EMBEDDING</span>
+                    <span class="ordl-sysinfo-value">YES</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">MODEL</span>
+                    <span class="ordl-sysinfo-value">vit-base</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const uploadZone = document.getElementById('upload-zone');
+        const imageInput = document.getElementById('image-input');
+        const previewSection = document.getElementById('preview-section');
+        const resultsSection = document.getElementById('results-section');
+        const imagePreview = document.getElementById('image-preview');
+        const fileInfo = document.getElementById('file-info');
+        const analyzeBtn = document.getElementById('analyze-btn');
+
+        // Upload click
+        uploadZone.addEventListener('click', () => imageInput.click());
+
+        // File selection
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleFile(file);
+        });
+
+        // Drag & drop
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = '#FFFFFF';
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.style.borderColor = '#333333';
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = '#333333';
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleFile(file);
+            }
+        });
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                fileInfo.textContent = `${file.name} / ${(file.size / 1024).toFixed(1)} KB`;
+                previewSection.style.display = 'block';
+                resultsSection.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Analyze button
+        analyzeBtn.addEventListener('click', () => {
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = '<span>[◐]</span><span>ANALYZING...</span>';
+            
+            // Simulate API call
+            setTimeout(() => {
+                resultsSection.style.display = 'block';
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = '<span>[■]</span><span>分析実行 / ANALYZE</span>';
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }, 1500);
+        });
+    })();
+</script>
+{% endblock %}

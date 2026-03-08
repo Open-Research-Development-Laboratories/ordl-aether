@@ -1,3 +1,5 @@
+Back to index: [../INDEX.md](../INDEX.md) | [Knowledge Base Catalog](doc_catalog.md)
+
 # System Architecture
 
 - Generated: `2026-03-08T03:44:58.877345+00:00`

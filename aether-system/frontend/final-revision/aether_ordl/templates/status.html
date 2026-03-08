@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+
+{% block title %}システム状態 / System Status{% endblock %}
+
+{% block content %}<!-- Page Header -->
+<header class="ordl-page-header">
+    <h1 class="ordl-page-title">
+        <span class="ordl-page-title-jp">システム状態</span>
+        <span class="ordl-page-title-en">/ System Status</span>
+    </h1>
+    <p class="ordl-page-subtitle">
+        システム健全性モニタリング / Monitor AETHER system health and model loading
+    </p>
+</header>
+
+<!-- Status Cards -->
+<div class="ordl-grid ordl-grid-3 ordl-mb-lg">
+    <!-- Core Status -->
+    <div class="ordl-card">
+        <div class="ordl-card-body">
+            <div class="ordl-flex ordl-gap-md ordl-items-center">
+                <div class="ordl-ascii-box" style="font-size: 24px;">
+    +----+
+    |  ■  |
+    +----+
+                </div>
+                
+                <div>
+                    <div class="ordl-muted ordl-small ordl-mono">CORE STATUS</div>
+                    <div class="ordl-stat-value" style="font-size: 18px;">INITIALIZED</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Active Modules -->
+    <div class="ordl-card">
+        <div class="ordl-card-body">
+            <div class="ordl-flex ordl-gap-md ordl-items-center">
+                <div class="ordl-ascii-box" style="font-size: 24px;">
+    +----+
+    |  3  |
+    +----+
+                </div>
+                
+                <div>
+                    <div class="ordl-muted ordl-small ordl-mono">ACTIVE MODULES</div>
+                    <div class="ordl-stat-value" style="font-size: 18px;">3 ONLINE</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Event Bus -->
+    <div class="ordl-card">
+        <div class="ordl-card-body">
+            <div class="ordl-flex ordl-gap-md ordl-items-center">
+                <div class="ordl-ascii-box" style="font-size: 24px;">
+    +----+
+    | 12  |
+    +----+
+                </div>
+                
+                <div>
+                    <div class="ordl-muted ordl-small ordl-mono">EVENT BUS</div>
+                    <div class="ordl-stat-value" style="font-size: 18px;">12 SUBS</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Module Status -->
+<div class="ordl-card ordl-mb-lg">
+    <div class="ordl-card-header">
+        <span class="ordl-card-title">
+            モジュール状態 / Module Status
+        </span>
+        <span class="ordl-mono ordl-small ordl-muted">3/3 READY</span>
+    </div>
+    <div class="ordl-card-body">
+        <div class="ordl-grid ordl-grid-3">
+            
+            <!-- Vision Module -->
+            <div class="ordl-sysinfo">
+                <div class="ordl-flex ordl-flex-between ordl-items-center ordl-mb-md">
+                    <div class="ordl-flex ordl-gap-sm ordl-items-center">
+                        <span class="ordl-status-indicator active"></span>
+                        <span class="ordl-jp">ビジョン</span>
+                    </div>
+                    <span class="ordl-mono ordl-small">[■]</span>
+                </div>
+                
+                <div class="ordl-terminal ordl-mb-md">
+                    <div class="ordl-terminal-line">
+                        <span class="ordl-terminal-timestamp">STATUS</span>
+                        <span class="ordl-terminal-level info">[OK]</span>
+                        <span class="ordl-terminal-message">Ready for inference</span>
+                    </div>
+                </div>
+                
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">OPERATIONS</span>
+                    <span class="ordl-sysinfo-value">2,847</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">ERRORS</span>
+                    <span class="ordl-sysinfo-value">12</span>
+                </div>
+                
+                <div class="ordl-mb-sm"></div>
+                
+                <div class="ordl-flex ordl-gap-sm">
+                    <span class="ordl-tag">vit_base</span>
+                    <span class="ordl-tag">detr_resnet50</span>
+                </div>
+            </div>
+            
+            <!-- NLP Module -->
+            <div class="ordl-sysinfo">
+                <div class="ordl-flex ordl-flex-between ordl-items-center ordl-mb-md">
+                    <div class="ordl-flex ordl-gap-sm ordl-items-center">
+                        <span class="ordl-status-indicator active"></span>
+                        <span class="ordl-jp">言語処理</span>
+                    </div>
+                    <span class="ordl-mono ordl-small">[■]</span>
+                </div>
+                
+                <div class="ordl-terminal ordl-mb-md">
+                    <div class="ordl-terminal-line">
+                        <span class="ordl-terminal-timestamp">STATUS</span>
+                        <span class="ordl-terminal-level info">[OK]</span>
+                        <span class="ordl-terminal-message">Ready for inference</span>
+                    </div>
+                </div>
+                
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">OPERATIONS</span>
+                    <span class="ordl-sysinfo-value">5,621</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">ERRORS</span>
+                    <span class="ordl-sysinfo-value">3</span>
+                </div>
+                
+                <div class="ordl-mb-sm"></div>
+                
+                <div class="ordl-flex ordl-gap-sm">
+                    <span class="ordl-tag">bert_base</span>
+                    <span class="ordl-tag">gpt2_medium</span>
+                </div>
+            </div>
+            
+            <!-- Anomaly Module -->
+            <div class="ordl-sysinfo">
+                <div class="ordl-flex ordl-flex-between ordl-items-center ordl-mb-md">
+                    <div class="ordl-flex ordl-gap-sm ordl-items-center">
+                        <span class="ordl-status-indicator active"></span>
+                        <span class="ordl-jp">異常検出</span>
+                    </div>
+                    <span class="ordl-mono ordl-small">[■]</span>
+                </div>
+                
+                <div class="ordl-terminal ordl-mb-md">
+                    <div class="ordl-terminal-line">
+                        <span class="ordl-terminal-timestamp">STATUS</span>
+                        <span class="ordl-terminal-level info">[OK]></span>
+                        <span class="ordl-terminal-message">Ready for inference</span>
+                    </div>
+                </div>
+                
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">OPERATIONS</span>
+                    <span class="ordl-sysinfo-value">1,934</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">ERRORS</span>
+                    <span class="ordl-sysinfo-value">0</span>
+                </div>
+                
+                <div class="ordl-mb-sm"></div>
+                
+                <div class="ordl-flex ordl-gap-sm">
+                    <span class="ordl-tag">isolation_forest</span>
+                    <span class="ordl-tag">lof_detector</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Event Bus Statistics -->
+<div class="ordl-grid ordl-grid-2 ordl-mb-lg">
+    <div class="ordl-card">
+        <div class="ordl-card-header">
+            <span class="ordl-card-title">
+                イベントバス統計 / Event Bus Statistics
+            </span>
+        </div>
+        <div class="ordl-card-body">
+            <div class="ordl-sysinfo">
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">EVENTS_PUBLISHED</span>
+                    <span class="ordl-sysinfo-value">12,847</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">EVENTS_PROCESSED</span>
+                    <span class="ordl-sysinfo-value">12,842</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">ACTIVE_SUBSCRIPTIONS</span>
+                    <span class="ordl-sysinfo-value">12</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">EVENT_TYPES</span>
+                    <span class="ordl-sysinfo-value">4</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="ordl-card">
+        <div class="ordl-card-header">
+            <span class="ordl-card-title">
+                最近のイベント / Recent Events
+            </span>
+            <span class="ordl-mono ordl-small ordl-muted">LIVE</span>
+        </div>
+        <div class="ordl-card-body">
+            <div class="ordl-terminal" id="events-terminal">
+                <div class="ordl-terminal-line">
+                    <span class="ordl-terminal-timestamp">20:14:32</span>
+                    <span class="ordl-terminal-level info">[INFO]</span>
+                    <span class="ordl-terminal-message">analysis_complete</span>
+                </div>
+                <div class="ordl-terminal-line">
+                    <span class="ordl-terminal-timestamp">20:14:28</span>
+                    <span class="ordl-terminal-level info">[INFO]</span>
+                    <span class="ordl-terminal-message">model_loaded</span>
+                </div>
+                <div class="ordl-terminal-line">
+                    <span class="ordl-terminal-timestamp">20:14:15</span>
+                    <span class="ordl-terminal-level warn">[WARN]</span>
+                    <span class="ordl-terminal-message">anomaly_detected</span>
+                </div>
+                <div class="ordl-terminal-line">
+                    <span class="ordl-terminal-timestamp">20:13:42</span>
+                    <span class="ordl-terminal-level info">[INFO]</span>
+                    <span class="ordl-terminal-message">knowledge_stored</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scheduler Status -->
+<div class="ordl-card">
+    <div class="ordl-card-header">
+        <span class="ordl-card-title">
+            スケジューラ状態 / Scheduler Status
+        </span>
+        <span class="ordl-mono ordl-small ordl-muted">[■] RUNNING</span>
+    </div>
+    <div class="ordl-card-body">
+        <div class="ordl-grid ordl-grid-3">
+            <div class="ordl-sysinfo">
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">STATUS</span>
+                    <span class="ordl-sysinfo-value">RUNNING</span>
+                </div>
+            </div>
+            
+            <div class="ordl-sysinfo">
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">JOBS_EXECUTED</span>
+                    <span class="ordl-sysinfo-value">864</span>
+                </div>
+            </div>
+            
+            <div class="ordl-sysinfo">
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">SCHEDULED_JOBS</span>
+                    <span class="ordl-sysinfo-value">6</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simulate live events
+    (function() {
+        const terminal = document.getElementById('events-terminal');
+        const eventTypes = ['analysis_complete', 'model_loaded', 'anomaly_detected', 'knowledge_stored', 'error'];
+        const sources = ['vision_module', 'nlp_module', 'anomaly_module', 'system_core'];
+        
+        function addEvent() {
+            const now = new Date();
+            const time = now.toTimeString().split(' ')[0];
+            const type = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+            const source = sources[Math.floor(Math.random() * sources.length)];
+            const level = type === 'error' ? 'error' : type === 'anomaly_detected' ? 'warn' : 'info';
+            
+            const line = document.createElement('div');
+            line.className = 'ordl-terminal-line';
+            line.innerHTML = `
+                <span class="ordl-terminal-timestamp">${time}</span>
+                <span class="ordl-terminal-level ${level}">[${level.toUpperCase()}]</span>
+                <span class="ordl-terminal-message">${type} | ${source}</span>
+            `;
+            
+            terminal.appendChild(line);
+            
+            // Keep only last 10 lines
+            while (terminal.children.length > 10) {
+                terminal.removeChild(terminal.firstChild);
+            }
+            
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+        
+        // Add random event every 5-10 seconds
+        setInterval(() => {
+            if (Math.random() > 0.3) {
+                addEvent();
+            }
+        }, 5000);
+    })();
+</script>
+{% endblock %}

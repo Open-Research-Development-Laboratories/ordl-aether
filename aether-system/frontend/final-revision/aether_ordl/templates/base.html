@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AETHER{% endblock %} | ORDL 零式</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ordl-zero.css') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Binary Rain Canvas -->
+    <canvas id="binary-canvas"></canvas>
+    
+    <!-- Scanline Effect -->
+    <div class="ordl-scanline"></div>
+    
+    <div class="ordl-container">
+        <!-- HEADER -->
+        <header class="ordl-header">
+            <div class="ordl-header-left">
+                <!-- Brand -->
+                <div class="ordl-brand">
+                    <div class="ordl-binary">01001111 01010010 01000100 01001100</div>
+                    <div class="ordl-title">
+                        <span class="ordl-title-jp">零式</span>
+                        <span class="ordl-title-en">ORDL-ZERO</span>
+                    </div>
+                    <div class="ordl-tagline">黒い画面の中の白い影</div>
+                </div>
+                
+                <!-- Main Navigation -->
+                <nav class="ordl-nav">
+                    <a href="{{ url_for('dashboard') }}" class="ordl-nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                        <span class="ordl-nav-label">
+                            <span class="ordl-nav-jp">ダッシュボード</span>
+                            <span class="ordl-nav-en">Dashboard</span>
+                        </span>
+                    </a>
+                    <a href="{{ url_for('image_analysis') }}" class="ordl-nav-link {% if request.endpoint == 'image_analysis' %}active{% endif %}">
+                        <span class="ordl-nav-label">
+                            <span class="ordl-nav-jp">画像分析</span>
+                            <span class="ordl-nav-en">Image</span>
+                        </span>
+                    </a>
+                    <a href="{{ url_for('text_analysis') }}" class="ordl-nav-link {% if request.endpoint == 'text_analysis' %}active{% endif %}">
+                        <span class="ordl-nav-label">
+                            <span class="ordl-nav-jp">テキスト分析</span>
+                            <span class="ordl-nav-en">Text</span>
+                        </span>
+                    </a>
+                    <a href="{{ url_for('anomaly_detection') }}" class="ordl-nav-link {% if request.endpoint == 'anomaly_detection' %}active{% endif %}">
+                        <span class="ordl-nav-label">
+                            <span class="ordl-nav-jp">異常検出</span>
+                            <span class="ordl-nav-en">Anomalies</span>
+                        </span>
+                    </a>
+                    <a href="{{ url_for('knowledge_base') }}" class="ordl-nav-link {% if request.endpoint == 'knowledge_base' %}active{% endif %}">
+                        <span class="ordl-nav-label">
+                            <span class="ordl-nav-jp">知識ベース</span>
+                            <span class="ordl-nav-en">Knowledge</span>
+                        </span>
+                    </a>
+                    <a href="{{ url_for('system_status') }}" class="ordl-nav-link {% if request.endpoint == 'system_status' %}active{% endif %}">
+                        <span class="ordl-nav-label">
+                            <span class="ordl-nav-jp">システム状態</span>
+                            <span class="ordl-nav-en">Status</span>
+                        </span>
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="ordl-header-right">
+                <!-- Contrast Control -->
+                <div class="ordl-contrast-control">
+                    <label>
+                        <span class="ordl-contrast-label-jp">明度</span>
+                        <span class="ordl-contrast-label-en">Bright</span>
+                    </label>
+                    <input type="range" id="contrast-slider" min="0" max="100" value="50">
+                </div>
+                
+                <!-- System Status -->
+                <div class="ordl-status">
+                    <span class="ordl-status-indicator active"></span>
+                    <span class="ordl-mono">SYSTEM.ONLINE</span>
+                </div>
+            </div>
+        </header>
+        
+        <!-- SIDEBAR -->
+        <aside class="ordl-sidebar">
+            <!-- System Info -->
+            <div class="ordl-sysinfo">
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">SYS.ID</span>
+                    <span class="ordl-sysinfo-value">AETHER-01</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">CORE.VER</span>
+                    <span class="ordl-sysinfo-value">v1.0.0</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">UPTIME</span>
+                    <span class="ordl-sysinfo-value" id="uptime-counter">00:00:00</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">MODULES</span>
+                    <span class="ordl-sysinfo-value">3.ACTIVE</span>
+                </div>
+            </div>
+            
+            <!-- Quick Menu -->
+            <h3 class="ordl-section-title">Navigation</h3>
+            <ul class="ordl-menu">
+                <li class="ordl-menu-item">
+                    <a href="{{ url_for('dashboard') }}" class="ordl-menu-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                        <span class="ordl-menu-icon">[■]</span>
+                        <span class="ordl-nav-jp">ダッシュボード</span>
+                    </a>
+                </li>
+                <li class="ordl-menu-item">
+                    <a href="{{ url_for('image_analysis') }}" class="ordl-menu-link {% if request.endpoint == 'image_analysis' %}active{% endif %}">
+                        <span class="ordl-menu-icon">[ ]</span>
+                        <span class="ordl-nav-jp">画像分析</span>
+                    </a>
+                </li>
+                <li class="ordl-menu-item">
+                    <a href="{{ url_for('text_analysis') }}" class="ordl-menu-link {% if request.endpoint == 'text_analysis' %}active{% endif %}">
+                        <span class="ordl-menu-icon">[ ]</span>
+                        <span class="ordl-nav-jp">テキスト分析</span>
+                    </a>
+                </li>
+                <li class="ordl-menu-item">
+                    <a href="{{ url_for('anomaly_detection') }}" class="ordl-menu-link {% if request.endpoint == 'anomaly_detection' %}active{% endif %}">
+                        <span class="ordl-menu-icon">[ ]</span>
+                        <span class="ordl-nav-jp">異常検出</span>
+                    </a>
+                </li>
+                <li class="ordl-menu-item">
+                    <a href="{{ url_for('knowledge_base') }}" class="ordl-menu-link {% if request.endpoint == 'knowledge_base' %}active{% endif %}">
+                        <span class="ordl-menu-icon">[ ]</span>
+                        <span class="ordl-nav-jp">知識ベース</span>
+                    </a>
+                </li>
+                <li class="ordl-menu-item">
+                    <a href="{{ url_for('system_status') }}" class="ordl-menu-link {% if request.endpoint == 'system_status' %}active{% endif %}">
+                        <span class="ordl-menu-icon">[◐]</span>
+                        <span class="ordl-nav-jp">システム状態</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <!-- Active Modules -->
+            <h3 class="ordl-section-title">Modules</h3>
+            <ul class="ordl-list">
+                <li class="ordl-list-item">
+                    <span>[■]</span>
+                    <span>VISION</span>
+                    <span class="ordl-muted">2.8K ops</span>
+                </li>
+                <li class="ordl-list-item">
+                    <span>[■]</span>
+                    <span>NLP</span>
+                    <span class="ordl-muted">5.6K ops</span>
+                </li>
+                <li class="ordl-list-item">
+                    <span>[■]</span>
+                    <span>ANOMALY</span>
+                    <span class="ordl-muted">1.9K ops</span>
+                </li>
+            </ul>
+            
+            <!-- Hex Decoration -->
+            <div class="ordl-hex-decoration">
+                0x4F52544C<br>
+                0x41455448<br>
+                0x52455A45<br>
+                0x524F0000<br>
+                <br>
+                0x7E7E7E7E<br>
+                0x00000000<br>
+                0xFFFFFFFF
+            </div>
+        </aside>
+        
+        <!-- MAIN CONTENT -->
+        <main class="ordl-main">
+            <div class="ordl-content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/binary-effects.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/contrast-slider.js') }}"></script>
+    
+    <!-- Uptime Counter -->
+    <script>
+        (function() {
+            let seconds = Math.floor(Math.random() * 86400);
+            
+            function updateUptime() {
+                seconds++;
+                const hrs = Math.floor(seconds / 3600).toString().padStart(2, '0');
+                const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+                const secs = (seconds % 60).toString().padStart(2, '0');
+                
+                const el = document.getElementById('uptime-counter');
+                if (el) el.textContent = `${hrs}:${mins}:${secs}`;
+            }
+            
+            setInterval(updateUptime, 1000);
+        })();
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

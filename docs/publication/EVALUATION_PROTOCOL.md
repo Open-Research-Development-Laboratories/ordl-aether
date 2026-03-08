@@ -1,46 +1,53 @@
 # Evaluation Protocol
 
-## Rules
+Back to index: [../INDEX.md](../INDEX.md) | [Publication Program](README.md)
+
+## Evaluation Rules
 
 1. No model promotion without benchmark evidence.
-2. Every benchmark run must be reproducible from repo state and input dataset version.
-3. Production changes must include before/after metrics for affected tracks.
+2. Every benchmark run must be reproducible from repository state and dataset version.
+3. Production-impacting changes must include before and after metrics.
 
 ## Track Metrics
 
 ### Text
 
-- Summary quality (human-rated + automated overlap metrics where applicable)
-- Entity extraction precision/recall on labeled set
-- Sentiment consistency and confidence calibration
-- Classification top-1 accuracy for domain labels
+- Summary quality on designated benchmark sets.
+- Entity extraction precision and recall on labeled corpora.
+- Sentiment consistency and confidence calibration.
+- Classification accuracy for target domain labels.
 
 ### Vision
 
-- Top-k classification accuracy on labeled image set
-- Detection precision/recall and confidence calibration
-- Embedding retrieval relevance (precision at k)
+- Top-k classification accuracy on labeled image sets.
+- Detection precision and recall with confidence calibration.
+- Embedding retrieval relevance measured at k.
 
 ### Anomaly
 
-- Precision/recall/F1 against labeled anomalies
-- False positive rate in normal windows
-- Detection latency for change events
+- Precision, recall, and F1 against labeled anomalies.
+- False positive rate within normal windows.
+- Detection latency for known event transitions.
 
 ## Operational Metrics
 
-- API p50/p95 latency by endpoint
-- Error rate by endpoint
-- Startup readiness time
-- Disk growth rate due to model cache and data artifacts
+- API latency by endpoint (p50 and p95).
+- Endpoint error rate.
+- Startup readiness time.
+- Disk growth rate from data and model artifacts.
 
-## Reporting
+## Required Reporting Fields
 
-Every evaluation run should produce:
+Each evaluation record should include:
 
-1. Dataset versions used
-2. Exact code ref (commit hash)
-3. Runtime configuration summary
-4. Metric table (baseline vs candidate)
-5. Decision (promote, hold, or reject)
+1. Dataset versions.
+2. Exact code reference (commit hash).
+3. Runtime configuration summary.
+4. Metric table for baseline vs candidate.
+5. Promotion decision: promote, hold, or reject.
 
+## Related Documents
+
+- [R&D Program Map](RD_PROGRAM_MAP.md)
+- [Model Card Template](MODEL_CARD_TEMPLATE.md)
+- [Release Notes Template](RELEASE_NOTES_TEMPLATE.md)

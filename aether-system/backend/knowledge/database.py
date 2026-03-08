@@ -288,6 +288,46 @@ class KnowledgeBase:
         finally:
             session.close()
 
+    async def get_item(self, item_id: int) -> Dict[str, Any] | None:
+        """Fetch a single knowledge item by ID."""
+        session = self.Session()
+        try:
+            item = session.query(KnowledgeItem).filter(KnowledgeItem.id == item_id).first()
+            if not item:
+                return None
+            return self._serialize_item(item)
+        finally:
+            session.close()
+
+    async def update_item(
+        self,
+        item_id: int,
+        *,
+        metadata: Dict[str, Any] | None = None,
+        content: str | None = None,
+        title: str | None = None,
+    ) -> Dict[str, Any] | None:
+        """Update an existing knowledge item and return its serialized form."""
+        session = self.Session()
+        try:
+            item = session.query(KnowledgeItem).filter(KnowledgeItem.id == item_id).first()
+            if not item:
+                return None
+
+            if metadata is not None:
+                item.metadata_json = self._json_safe(metadata)
+            if content is not None:
+                item.content = content
+            if title is not None:
+                item.title = title
+
+            item.updated_at = datetime.utcnow()
+            session.commit()
+            session.refresh(item)
+            return self._serialize_item(item)
+        finally:
+            session.close()
+
 
 knowledge_base = KnowledgeBase()
 

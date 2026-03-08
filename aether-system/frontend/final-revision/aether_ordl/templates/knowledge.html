@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}知識ベース / Knowledge Base{% endblock %}
+
+{% block content %}<!-- Page Header -->
+<header class="ordl-page-header">
+    <h1 class="ordl-page-title">
+        <span class="ordl-page-title-jp">知識ベース</span>
+        <span class="ordl-page-title-en">/ Knowledge Base</span>
+    </h1>
+    <p class="ordl-page-subtitle">
+        格納分析の検索 / Search stored analyses and inspect full reports
+    </p>
+</header>
+
+<!-- Stats Grid -->
+<div class="ordl-grid ordl-grid-4 ordl-mb-lg">
+    <div class="ordl-stat">
+        <div class="ordl-stat-header">
+            <div class="ordl-stat-label">
+                総項目数
+                <span class="ordl-stat-label-en">Total Items</span>
+            </div>
+            <div class="ordl-stat-ascii">[TOT]</div>
+        </div>
+        <div class="ordl-stat-value">4,211</div>
+    </div>
+    
+    <div class="ordl-stat">
+        <div class="ordl-stat-header">
+            <div class="ordl-stat-label">
+                画像分析
+                <span class="ordl-stat-label-en">Image</span>
+            </div>
+            <div class="ordl-stat-ascii">[IMG]</div>
+        </div>
+        <div class="ordl-stat-value">1,847</div>
+    </div>
+    
+    <div class="ordl-stat">
+        <div class="ordl-stat-header">
+            <div class="ordl-stat-label">
+                テキスト分析
+                <span class="ordl-stat-label-en">Text</span>
+            </div>
+            <div class="ordl-stat-ascii">[TXT]</div>
+        </div>
+        <div class="ordl-stat-value">1,923</div>
+    </div>
+    
+    <div class="ordl-stat">
+        <div class="ordl-stat-header">
+            <div class="ordl-stat-label">
+                異常検出
+                <span class="ordl-stat-label-en">Anomaly</span>
+            </div>
+            <div class="ordl-stat-ascii">[ANM]</div>
+        </div>
+        <div class="ordl-stat-value">441</div>
+    </div>
+</div>
+
+<!-- Search Section -->
+<div class="ordl-card ordl-mb-lg">
+    <div class="ordl-card-header">
+        <span class="ordl-card-title">
+            検索 / Search
+        </span>
+    </div>
+    <div class="ordl-card-body">
+        <div class="ordl-flex ordl-gap-md">
+            <input 
+                type="text" 
+                id="search-input" 
+                class="ordl-input" 
+                placeholder="Search knowledge base or leave blank for latest records / 検索..."
+                style="flex: 1;"
+            >
+            <button id="search-btn" class="ordl-btn">
+                <span>[■]</span>
+                <span>検索 / SEARCH</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Results Grid -->
+<div class="ordl-grid ordl-grid-2">
+    <!-- Results List -->
+    <div class="ordl-card">
+        <div class="ordl-card-header">
+            <span class="ordl-card-title">
+                検索結果 / Results
+            </span>
+            <span class="ordl-mono ordl-small ordl-muted" id="result-count">20 items</span>
+        </div>
+        <div class="ordl-card-body">
+            <ul class="ordl-list" id="knowledge-list">
+                <!-- Sample items -->
+                <li class="ordl-list-item" style="cursor: pointer;" onclick="showDetail(0)">
+                    <span>[■]</span>
+                    <span>画像分類レポート #2847</span>
+                    <span class="ordl-tag">IMG</span>
+                </li>
+                <li class="ordl-list-item" style="cursor: pointer;" onclick="showDetail(1)">
+                    <span>[ ]</span>
+                    <span>テキスト要約分析 #1923</span>
+                    <span class="ordl-tag">TXT</span>
+                </li>
+                <li class="ordl-list-item" style="cursor: pointer;" onclick="showDetail(2)">
+                    <span>[ ]</span>
+                    <span>異常検出パターン #847</span>
+                    <span class="ordl-tag">ANM</span>
+                </li>
+                <li class="ordl-list-item" style="cursor: pointer;" onclick="showDetail(3)">
+                    <span>[■]</span>
+                    <span>物体検出結果 #5621</span>
+                    <span class="ordl-tag">IMG</span>
+                </li>
+                <li class="ordl-list-item" style="cursor: pointer;" onclick="showDetail(4)">
+                    <span>[ ]</span>
+                    <span>感情分析レポート #3402</span>
+                    <span class="ordl-tag">TXT</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Detail Panel -->
+    <div class="ordl-card" id="detail-panel">
+        <div class="ordl-card-header">
+            <span class="ordl-card-title" id="detail-title">
+                詳細 / Detail
+            </span>
+            <span class="ordl-tag ordl-tag-active" id="detail-type">IMG</span>
+        </div>
+        <div class="ordl-card-body">
+            <div id="detail-content">
+                <div class="ordl-sysinfo ordl-mb-md">
+                    <div class="ordl-sysinfo-row">
+                        <span class="ordl-sysinfo-label">ID</span>
+                        <span class="ordl-sysinfo-value" id="detail-id">kb_2847</span>
+                    </div>
+                    <div class="ordl-sysinfo-row">
+                        <span class="ordl-sysinfo-label">SOURCE</span>
+                        <span class="ordl-sysinfo-value">upload</span>
+                    </div>
+                    <div class="ordl-sysinfo-row">
+                        <span class="ordl-sysinfo-label">CONFIDENCE</span>
+                        <span class="ordl-sysinfo-value">94.3%</span>
+                    </div>
+                </div>
+                
+                <div class="ordl-terminal ordl-mb-md">
+                    <div class="ordl-terminal-line">
+                        <span class="ordl-terminal-timestamp">2026-03-08</span>
+                        <span class="ordl-terminal-level info">[IMG]</span>
+                        <span class="ordl-terminal-message">Analysis complete</span>
+                    </div>
+                    <div class="ordl-terminal-line">
+                        <span class="ordl-terminal-timestamp">2026-03-08</span>
+                        <span class="ordl-terminal-level info">[SYS]</span>
+                        <span class="ordl-terminal-message">Stored to knowledge base</span>
+                    </div>
+                </div>
+                
+                <div class="ordl-muted ordl-small ordl-mono">
+                    <p>Select a record from the list to view full details.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Sample data
+    const knowledgeItems = [
+        {
+            id: 'kb_2847',
+            title: '画像分類レポート #2847',
+            titleEn: 'Image Classification Report #2847',
+            type: 'IMG',
+            source: 'upload',
+            confidence: 0.943,
+            content: 'digital_computer: 94.3%, screen: 89.1%, desk: 75.6%'
+        },
+        {
+            id: 'kb_1923',
+            title: 'テキスト要約分析 #1923',
+            titleEn: 'Text Summary Analysis #1923',
+            type: 'TXT',
+            source: 'api',
+            confidence: 0.891,
+            content: 'Summary: AI technology continues to advance... Sentiment: POSITIVE'
+        },
+        {
+            id: 'kb_0847',
+            title: '異常検出パターン #847',
+            titleEn: 'Anomaly Detection Pattern #847',
+            type: 'ANM',
+            source: 'batch_process',
+            confidence: 0.987,
+            content: '3 anomalies detected at indices: 23, 67, 112. Severity: MEDIUM'
+        },
+        {
+            id: 'kb_5621',
+            title: '物体検出結果 #5621',
+            titleEn: 'Object Detection Results #5621',
+            type: 'IMG',
+            source: 'upload',
+            confidence: 0.923,
+            content: 'monitor: 98.7%, keyboard: 92.3%, mouse: 87.4%'
+        },
+        {
+            id: 'kb_3402',
+            title: '感情分析レポート #3402',
+            titleEn: 'Sentiment Analysis Report #3402',
+            type: 'TXT',
+            source: 'api',
+            confidence: 0.878,
+            content: 'Sentiment: POSITIVE (87.8%), Keywords: innovation, research, future'
+        }
+    ];
+
+    function showDetail(index) {
+        const item = knowledgeItems[index];
+        document.getElementById('detail-title').textContent = `${item.title} / ${item.titleEn}`;
+        document.getElementById('detail-type').textContent = item.type;
+        document.getElementById('detail-id').textContent = item.id;
+        
+        document.getElementById('detail-content').innerHTML = `
+            <div class="ordl-sysinfo ordl-mb-md">
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">ID</span>
+                    <span class="ordl-sysinfo-value">${item.id}</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">SOURCE</span>
+                    <span class="ordl-sysinfo-value">${item.source}</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">CONFIDENCE</span>
+                    <span class="ordl-sysinfo-value">${(item.confidence * 100).toFixed(1)}%</span>
+                </div>
+            </div>
+            
+            <div class="ordl-terminal ordl-mb-md">
+                <div class="ordl-terminal-line">
+                    <span class="ordl-terminal-timestamp">2026-03-08</span>
+                    <span class="ordl-terminal-level info">[${item.type}]</span>
+                    <span class="ordl-terminal-message">${item.content}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    // Search functionality
+    document.getElementById('search-btn').addEventListener('click', () => {
+        const query = document.getElementById('search-input').value.toLowerCase();
+        const list = document.getElementById('knowledge-list');
+        
+        if (!query) {
+            // Show all
+            list.innerHTML = knowledgeItems.map((item, i) => `
+                <li class="ordl-list-item" style="cursor: pointer;" onclick="showDetail(${i})">
+                    <span>[${i === 0 ? '■' : ' '}]</span>
+                    <span>${item.title}</span>
+                    <span class="ordl-tag">${item.type}</span>
+                </li>
+            `).join('');
+            document.getElementById('result-count').textContent = `${knowledgeItems.length} items`;
+            return;
+        }
+        
+        const filtered = knowledgeItems.filter(item => 
+            item.title.toLowerCase().includes(query) || 
+            item.type.toLowerCase().includes(query)
+        );
+        
+        list.innerHTML = filtered.map((item, i) => `
+            <li class="ordl-list-item" style="cursor: pointer;" onclick="showDetail(${knowledgeItems.indexOf(item)})">
+                <span>[${i === 0 ? '■' : ' '}]</span>
+                <span>${item.title}</span>
+                <span class="ordl-tag">${item.type}</span>
+            </li>
+        `).join('');
+        
+        document.getElementById('result-count').textContent = `${filtered.length} items`;
+    });
+</script>
+{% endblock %}

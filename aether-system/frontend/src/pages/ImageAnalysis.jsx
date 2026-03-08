@@ -58,9 +58,9 @@ function ImageAnalysis() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold gradient-text">Image Analysis</h1>
+        <h1 className="text-3xl font-bold gradient-text">IMAGE ANALYSIS / 画像分析</h1>
         <p className="text-text-secondary mt-1">
-          Computer vision powered by Vision Transformers
+          COMPUTER VISION / コンピュータビジョン
         </p>
       </div>
 

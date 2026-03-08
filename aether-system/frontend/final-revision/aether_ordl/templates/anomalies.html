@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+
+{% block title %}異常検出 / Anomaly Detection{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<header class="ordl-page-header">
+    <h1 class="ordl-page-title">
+        <span class="ordl-page-title-jp">異常検出</span>
+        <span class="ordl-page-title-en">/ Anomaly Detection</span>
+    </h1>
+    <p class="ordl-page-subtitle">
+        時系列異常検出 / Multi-algorithm time-series outlier detection
+    </p>
+</header>
+
+<!-- Input Section -->
+<div class="ordl-card ordl-mb-lg">
+    <div class="ordl-card-header">
+        <span class="ordl-card-title">
+            データ入力 / Data Input
+        </span>
+        <span class="ordl-mono ordl-small ordl-muted">
+            COMMA_SEPARATED_VALUES
+        </span>
+    </div>
+    <div class="ordl-card-body">
+        <div class="ordl-form-group">
+            <label class="ordl-label">
+                時系列データを入力 (カンマ区切り)
+                <span class="ordl-muted">/ Enter time-series data (comma-separated)</span>
+            </label>
+            <textarea 
+                id="data-input" 
+                class="ordl-textarea" 
+                style="min-height: 120px;"
+                placeholder="例: 10, 12, 11, 13, 45, 12, 11, 10, 100, 12, 11">10, 12, 11, 13, 45, 12, 11, 10, 100, 12, 11, 12, 145, 12, 11</textarea>
+        </div>
+        
+        <div class="ordl-flex ordl-flex-between ordl-items-center">
+            <div class="ordl-muted ordl-small ordl-mono">
+                <p>Example: Normal values with occasional spikes</p>
+                <p>Try: 1,2,3,2,3,50,2,3,2,100,3,2</p>
+            </div>
+            
+            <button id="detect-btn" class="ordl-btn">
+                <span>[■]</span>
+                <span>検出実行 / DETECT</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Results Section -->
+<div id="results-section" style="display: none;">
+    
+    <!-- Stats Grid -->
+    <div class="ordl-grid ordl-grid-4 ordl-mb-lg">
+        <div class="ordl-stat">
+            <div class="ordl-stat-header">
+                <div class="ordl-stat-label">
+                    データポイント
+                    <span class="ordl-stat-label-en">Data Points</span>
+                </div>
+            </div>
+            <div class="ordl-stat-value" id="data-points">15</div>
+        </div>
+        
+        <div class="ordl-stat">
+            <div class="ordl-stat-header">
+                <div class="ordl-stat-label">
+                    検出異常数
+                    <span class="ordl-stat-label-en">Anomalies</span>
+                </div>
+            </div>
+            <div class="ordl-stat-value" id="anomaly-count">3</div>
+        </div>
+        
+        <div class="ordl-stat">
+            <div class="ordl-stat-header">
+                <div class="ordl-stat-label">
+                    異常率
+                    <span class="ordl-stat-label-en">Anomaly Rate</span>
+                </div>
+            </div>
+            <div class="ordl-stat-value" id="anomaly-rate">20.0%</div>
+        </div>
+        
+        <div class="ordl-stat">
+            <div class="ordl-stat-header">
+                <div class="ordl-stat-label">
+                    深刻度
+                    <span class="ordl-stat-label-en">Severity</span>
+                </div>
+            </div>
+            <div class="ordl-stat-value" id="severity">MEDIUM</div>
+        </div>
+    </div>
+    
+    <!-- Chart -->
+    <div class="ordl-card ordl-mb-lg">
+        <div class="ordl-card-header">
+            <span class="ordl-card-title">
+                時系列可視化 / Time-Series Visualization
+            </span>
+            <div class="ordl-flex ordl-gap-sm">
+                <span class="ordl-muted ordl-small">[■] Normal</span>
+                <span class="ordl-muted ordl-small">[✕] Anomaly</span>
+            </div>
+        </div>
+        <div class="ordl-card-body">
+            <div class="ordl-chart-container">
+                <canvas id="anomaly-chart" class="ordl-chart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Anomaly Details -->
+    <div class="ordl-card ordl-mb-lg">
+        <div class="ordl-card-header">
+            <span class="ordl-card-title">
+                異常詳細 / Anomaly Details
+            </span>
+            <span class="ordl-mono ordl-small ordl-muted">[✕] ALERTS</span>
+        </div>
+        <div class="ordl-card-body">
+            <table class="ordl-table">
+                <thead>
+                    <tr>
+                        <th>INDEX</th>
+                        <th>VALUE</th>
+                        <th>METHODS</th>
+                        <th>CONFIDENCE</th>
+                    </tr>
+                </thead>
+                <tbody id="anomaly-table-body">
+                    <!-- Filled by JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Statistics -->
+    <div class="ordl-card">
+        <div class="ordl-card-header">
+            <span class="ordl-card-title">
+                統計サマリー / Statistical Summary
+            </span>
+        </div>
+        <div class="ordl-card-body">
+            <div class="ordl-grid ordl-grid-4">
+                <div class="ordl-sysinfo">
+                    <div class="ordl-sysinfo-row">
+                        <span class="ordl-sysinfo-label">MEAN</span>
+                        <span class="ordl-sysinfo-value" id="stat-mean">21.33</span>
+                    </div>
+                </div>
+                
+                <div class="ordl-sysinfo">
+                    <div class="ordl-sysinfo-row">
+                        <span class="ordl-sysinfo-label">STD_DEV</span>
+                        <span class="ordl-sysinfo-value" id="stat-std">36.45</span>
+                    </div>
+                </div>
+                
+                <div class="ordl-sysinfo">
+                    <div class="ordl-sysinfo-row">
+                        <span class="ordl-sysinfo-label">MIN</span>
+                        <span class="ordl-sysinfo-value" id="stat-min">10</span>
+                    </div>
+                </div>
+                
+                <div class="ordl-sysinfo">
+                    <div class="ordl-sysinfo-row">
+                        <span class="ordl-sysinfo-label">MAX</span>
+                        <span class="ordl-sysinfo-value" id="stat-max">145</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<script>
+    (function() {
+        const dataInput = document.getElementById('data-input');
+        const detectBtn = document.getElementById('detect-btn');
+        const resultsSection = document.getElementById('results-section');
+
+        detectBtn.addEventListener('click', () => {
+            const rawData = dataInput.value.trim();
+            if (!rawData) return;
+
+            detectBtn.disabled = true;
+            detectBtn.innerHTML = '<span>[◐]</span><span>ANALYZING...</span>';
+
+            // Parse data
+            const values = rawData.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
+            
+            // Simulate detection
+            setTimeout(() => {
+                // Detect anomalies (simple z-score based)
+                const mean = values.reduce((a, b) => a + b, 0) / values.length;
+                const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length;
+                const std = Math.sqrt(variance);
+                
+                const anomalies = [];
+                values.forEach((val, idx) => {
+                    const zScore = Math.abs((val - mean) / std);
+                    if (zScore > 1.5) {
+                        anomalies.push({
+                            index: idx,
+                            value: val,
+                            methods: ['z_score', 'iqr'],
+                            confidence: Math.min(3, Math.floor(zScore))
+                        });
+                    }
+                });
+
+                // Update stats
+                document.getElementById('data-points').textContent = values.length;
+                document.getElementById('anomaly-count').textContent = anomalies.length;
+                document.getElementById('anomaly-rate').textContent = 
+                    ((anomalies.length / values.length) * 100).toFixed(1) + '%';
+                
+                const severity = anomalies.length === 0 ? 'LOW' : 
+                                anomalies.length < 3 ? 'MEDIUM' : 'HIGH';
+                document.getElementById('severity').textContent = severity;
+
+                // Update stats
+                document.getElementById('stat-mean').textContent = mean.toFixed(2);
+                document.getElementById('stat-std').textContent = std.toFixed(2);
+                document.getElementById('stat-min').textContent = Math.min(...values);
+                document.getElementById('stat-max').textContent = Math.max(...values);
+
+                // Update table
+                const tbody = document.getElementById('anomaly-table-body');
+                tbody.innerHTML = anomalies.map(a => `
+                    <tr>
+                        <td class="ordl-mono">${a.index}</td>
+                        <td class="ordl-mono" style="color: #808080;">${a.value.toFixed(2)}</td>
+                        <td>${a.methods.map(m => `<span class="ordl-tag">${m}</span>`).join(' ')}</td>
+                        <td class="ordl-mono">${a.confidence}/3</td>
+                    </tr>
+                `).join('');
+
+                if (anomalies.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="ordl-muted" style="text-align: center; padding: 24px;">No anomalies detected</td></tr>';
+                }
+
+                // Draw chart
+                drawChart(values, anomalies);
+
+                resultsSection.style.display = 'block';
+                detectBtn.disabled = false;
+                detectBtn.innerHTML = '<span>[■]</span><span>検出実行 / DETECT</span>';
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }, 1000);
+        });
+
+        function drawChart(values, anomalies) {
+            const canvas = document.getElementById('anomaly-chart');
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            const width = rect.width;
+            const height = rect.height;
+            const padding = 40;
+            const chartWidth = width - padding * 2;
+            const chartHeight = height - padding * 2;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            const min = Math.min(...values);
+            const max = Math.max(...values);
+            const range = max - min || 1;
+            
+            // Grid
+            ctx.strokeStyle = '#1A1A1A';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (chartHeight / 5) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+            
+            // Draw line
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            values.forEach((val, i) => {
+                const x = padding + (chartWidth / (values.length - 1)) * i;
+                const y = padding + chartHeight - ((val - min) / range) * chartHeight;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // Draw anomalies
+            const anomalyIndices = new Set(anomalies.map(a => a.index));
+            values.forEach((val, i) => {
+                const x = padding + (chartWidth / (values.length - 1)) * i;
+                const y = padding + chartHeight - ((val - min) / range) * chartHeight;
+                
+                if (anomalyIndices.has(i)) {
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(x - 4, y - 4, 8, 8);
+                } else {
+                    ctx.fillStyle = '#808080';
+                    ctx.fillRect(x - 2, y - 2, 4, 4);
+                }
+            });
+            
+            // X-axis labels
+            ctx.fillStyle = '#808080';
+            ctx.font = '10px "JetBrains Mono"';
+            ctx.textAlign = 'center';
+            
+            for (let i = 0; i < values.length; i += Math.ceil(values.length / 8)) {
+                const x = padding + (chartWidth / (values.length - 1)) * i;
+                ctx.fillText(i.toString(), x, height - 10);
+            }
+        }
+    })();
+</script>
+{% endblock %}

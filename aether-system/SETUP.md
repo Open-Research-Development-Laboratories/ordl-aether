@@ -1,84 +1,74 @@
-﻿# AETHER Setup Guide
+# AETHER Setup Guide
+
+Back to runtime docs: [README.md](README.md) | [Repository index](../docs/INDEX.md)
 
 ## Prerequisites
 
-- Podman
-- podman-compose
-- 4GB+ RAM
-- 10GB free disk
+- Podman installed and available on PATH.
+- `podman-compose` available as `python -m podman_compose`.
+- At least 4 GB RAM and 10 GB free disk.
 
-## 1) Configure
+## 1. Prepare Environment
 
 ```bash
 cd aether-system
 cp .env.example .env
 ```
 
-Optional: add your NASA API key in `.env`.
+Optionally update API keys and environment values in `.env`.
 
-## 2) Start (Podman Compose)
-
-```bash
-podman-compose up -d --build
-```
-
-First run may take a while due to dependency/model downloads.
-
-## 3) Verify
-
-- Dashboard: http://localhost:3000
-- API docs: http://localhost:8000/docs
-- Health: http://localhost:8000/health
-
-## Common Commands
+## 2. Start the Platform
 
 ```bash
-# Stream logs
-podman-compose logs -f
-
-# Restart
-podman-compose down
-podman-compose up -d --build
-
-# Stop
-podman-compose down
+python -m podman_compose up -d
 ```
 
-## Project Layout
-
-```text
-aether-system/
-|-- backend/
-|-- frontend/
-|-- data/
-|-- ai_models/
-|-- docker-compose.yml
-|-- start.sh
-`-- .env.example
-```
-
-## Manual Development (No Compose)
-
-Backend:
+Use rebuild mode when dependencies or container build files change:
 
 ```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-python main.py
+python -m podman_compose up -d --build
 ```
 
-Frontend:
+## 3. Verify Health
+
+- Dashboard: `http://localhost:3000`
+- API docs: `http://localhost:8000/docs`
+- Health: `http://localhost:8000/health`
+- Readiness: `http://localhost:8000/ready`
+
+## 4. Operational Commands
 
 ```bash
-cd frontend
-npm install
-npm run dev -- --host 0.0.0.0 --port 3000
+# Follow logs
+python -m podman_compose logs -f
+
+# Stop services
+python -m podman_compose down
+
+# Restart services
+python -m podman_compose down
+python -m podman_compose up -d
 ```
 
-## Troubleshooting
+## 5. Quality and Security Checks
 
-- Backend not healthy: `podman-compose logs -f backend`
-- Frontend not reachable: `podman-compose logs -f frontend`
-- Port conflict: change ports in `docker-compose.yml`
+Run from repository root:
+
+```bash
+python scripts/secret_scan.py
+python scripts/smoke_test.py
+python scripts/benchmark_api.py --requests 40 --concurrency 8
+```
+
+## 6. Common Troubleshooting
+
+- Backend not healthy: `python -m podman_compose logs -f backend`
+- Frontend unreachable: `python -m podman_compose logs -f frontend`
+- Port conflicts: update service ports in `aether-system/docker-compose.yml`
+- Slow first start: expected when dependencies or models are downloading
+
+## Related Documents
+
+- [Runtime README](README.md)
+- [Project Summary](PROJECT_SUMMARY.md)
+- [Cloudflare Tunnel Guide](../docs/cloudflare-tunnel.md)

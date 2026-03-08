@@ -34,9 +34,9 @@ function TextAnalysis() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold gradient-text">Text Intelligence</h1>
+        <h1 className="text-3xl font-bold gradient-text">TEXT INTELLIGENCE / テキスト分析</h1>
         <p className="text-text-secondary mt-1">
-          NLP analysis with summarization, NER, and sentiment
+          NLP PROCESSING / NLP分析
         </p>
       </div>
 

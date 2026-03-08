@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import {
   AlertTriangle,
@@ -25,6 +25,49 @@ function DetailSection({ title, children, action = null }) {
   )
 }
 
+function normalizeAssetUrl(value) {
+  if (!value || typeof value !== 'string') {
+    return null
+  }
+  if (value.startsWith('http://') || value.startsWith('https://')) {
+    return value
+  }
+  if (value.startsWith('//')) {
+    return `https:${value}`
+  }
+  if (value.startsWith('/')) {
+    return value
+  }
+  return `/${value}`
+}
+
+function resolveAssetUrl(metadata = {}) {
+  const candidates = [
+    metadata.asset_url,
+    metadata.image_url,
+    metadata.thumbnail_url,
+    metadata.preview_image,
+    metadata.og_image,
+  ]
+  const matched = candidates.find((entry) => typeof entry === 'string' && entry.trim())
+  return normalizeAssetUrl(matched)
+}
+
+function getItemSummary(item) {
+  if (!item) {
+    return ''
+  }
+  const metadata = item.metadata || {}
+  return (
+    metadata.analysis?.summary
+    || metadata.summary?.text
+    || item.preview
+    || item.content
+    || item.full_content
+    || ''
+  )
+}
+
 function KnowledgeBase() {
   const [query, setQuery] = useState('')
   const [searching, setSearching] = useState(false)
@@ -32,11 +75,32 @@ function KnowledgeBase() {
   const [stats, setStats] = useState(null)
   const [error, setError] = useState(null)
   const [selectedItem, setSelectedItem] = useState(null)
+  const [hasSearched, setHasSearched] = useState(false)
+  const [enrichingItemId, setEnrichingItemId] = useState(null)
+  const [enrichError, setEnrichError] = useState(null)
+  const [enrichmentAttempts, setEnrichmentAttempts] = useState({})
 
   useEffect(() => {
     fetchStats()
-    searchKnowledge('')
   }, [])
+
+  useEffect(() => {
+    if (!selectedItem?.id) {
+      return
+    }
+
+    if (selectedItem.type !== 'web_research') {
+      return
+    }
+
+    const metadata = selectedItem.metadata || {}
+    if (metadata.analysis || enrichmentAttempts[selectedItem.id]) {
+      return
+    }
+
+    setEnrichmentAttempts((current) => ({ ...current, [selectedItem.id]: true }))
+    enrichKnowledgeItem(selectedItem.id)
+  }, [selectedItem?.id, selectedItem?.type])
 
   const fetchStats = async () => {
     try {
@@ -47,9 +111,24 @@ function KnowledgeBase() {
     }
   }
 
+  const updateItemInState = (nextItem) => {
+    if (!nextItem) {
+      return
+    }
+    setResults((current) => current.map((entry) => (entry.id === nextItem.id ? nextItem : entry)))
+    setSelectedItem((current) => {
+      if (!current || current.id !== nextItem.id) {
+        return current
+      }
+      return nextItem
+    })
+  }
+
   const searchKnowledge = async (value = query) => {
     setSearching(true)
     setError(null)
+    setEnrichError(null)
+    setHasSearched(true)
 
     try {
       const normalizedQuery = value.trim()
@@ -80,6 +159,27 @@ function KnowledgeBase() {
     }
   }
 
+  const enrichKnowledgeItem = async (itemId, force = false) => {
+    setEnrichingItemId(itemId)
+    setEnrichError(null)
+
+    try {
+      const response = await axios.post(`/knowledge/enrich/${itemId}`, {
+        force,
+        max_chars: 3500,
+      })
+
+      if (response.data?.item) {
+        updateItemInState(response.data.item)
+      }
+    } catch (err) {
+      console.error('Knowledge enrichment error:', err)
+      setEnrichError(err.response?.data?.detail || 'Unable to enrich this record right now')
+    } finally {
+      setEnrichingItemId(null)
+    }
+  }
+
   const getTypeIcon = (type) => {
     switch (type) {
       case 'image_analysis':
@@ -107,28 +207,23 @@ function KnowledgeBase() {
   }
 
   const selectedMetadata = selectedItem?.metadata || {}
-  const selectedAssetUrl = selectedMetadata.asset_url || null
-  const entityGroups = selectedMetadata.entities || []
+  const selectedAssetUrl = resolveAssetUrl(selectedMetadata)
+  const selectedAnalysis = selectedMetadata.analysis || null
+  const selectedSummary = getItemSummary(selectedItem)
+  const entityGroups = selectedMetadata.entities || selectedAnalysis?.entities || []
   const classifications = selectedMetadata.classifications || []
   const detections = selectedMetadata.detections || []
   const anomalyIndices = selectedMetadata.anomaly_indices || []
   const anomalyStats = selectedMetadata.statistics || {}
-  const keywordList = selectedMetadata.keywords || []
-  const classificationScores = selectedMetadata.classification || {}
-
-  const summaryText = useMemo(() => {
-    if (!selectedItem) {
-      return ''
-    }
-    return selectedItem.preview || selectedItem.content || selectedItem.full_content || ''
-  }, [selectedItem])
+  const keywordList = selectedMetadata.keywords || selectedAnalysis?.keywords || []
+  const classificationScores = selectedMetadata.classification || selectedAnalysis?.classification || {}
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold gradient-text">Knowledge Base</h1>
+        <h1 className="text-3xl font-bold gradient-text">KNOWLEDGE BASE / 知識ベース</h1>
         <p className="text-text-secondary mt-1">
-          Search stored analyses, then open the full report with model output and metadata
+          SEARCH AND REPORT INSPECTION / 検索と詳細確認
         </p>
       </div>
 
@@ -160,7 +255,7 @@ function KnowledgeBase() {
                   searchKnowledge()
                 }
               }}
-              placeholder="Search knowledge base or leave blank for the latest records"
+              placeholder="Enter query, then run Search"
               className="w-full pl-12 pr-4 py-3 rounded-lg bg-bg-dark border border-border text-white placeholder-text-secondary focus:border-accent focus:outline-none"
             />
           </div>
@@ -172,7 +267,7 @@ function KnowledgeBase() {
             {searching ? (
               <>
                 <Loader className="w-5 h-5 animate-spin" />
-                Loading
+                Searching
               </>
             ) : (
               <>
@@ -191,20 +286,25 @@ function KnowledgeBase() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] gap-6 items-start">
-        <div className="space-y-4">
-          <p className="text-text-secondary">
-            {query.trim() ? `Found ${results.length} results` : `Showing ${results.length} recent records`}
-          </p>
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] gap-6 items-start xl:h-[calc(100vh-320px)]">
+        <div className="space-y-4 xl:min-h-0 xl:overflow-y-auto xl:pr-2">
+          {!hasSearched ? (
+            <p className="text-text-secondary">No query executed yet. Enter a term and run search.</p>
+          ) : (
+            <p className="text-text-secondary">
+              {query.trim() ? `Found ${results.length} results` : `Showing ${results.length} recent records`}
+            </p>
+          )}
 
           {results.map((item) => {
             const Icon = getTypeIcon(item.type)
             const active = selectedItem?.id === item.id
             const metadata = item.metadata || {}
-            const assetUrl = metadata.asset_url
-            const sentiment = metadata.sentiment
+            const assetUrl = resolveAssetUrl(metadata)
+            const sentiment = metadata.sentiment || metadata.analysis?.sentiment
             const anomalyCount = metadata.anomaly_count
             const severity = metadata.severity
+            const previewText = getItemSummary(item)
 
             return (
               <button
@@ -237,7 +337,7 @@ function KnowledgeBase() {
                     </div>
 
                     <p className="text-text-secondary text-sm mb-4 whitespace-pre-wrap line-clamp-3">
-                      {item.preview || item.content}
+                      {previewText}
                     </p>
 
                     <div className="flex flex-wrap items-center gap-4 text-xs text-text-secondary">
@@ -269,7 +369,7 @@ function KnowledgeBase() {
             )
           })}
 
-          {!results.length && !searching && (
+          {hasSearched && !results.length && !searching && (
             <div className="glass rounded-xl p-12 text-center">
               <Database className="w-16 h-16 mx-auto mb-4 text-text-secondary" />
               <p className="text-text-secondary">No records matched the current query.</p>
@@ -277,15 +377,27 @@ function KnowledgeBase() {
           )}
         </div>
 
-        <div className="space-y-4 sticky top-8">
+        <div className="space-y-4 xl:min-h-0 xl:overflow-y-auto xl:pr-2">
           {selectedItem ? (
             <>
               <DetailSection
                 title={selectedItem.title}
                 action={
-                  <span className={`px-2 py-1 text-xs rounded capitalize ${getTypeColor(selectedItem.type)}`}>
-                    {selectedItem.type.replaceAll('_', ' ')}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-1 text-xs rounded capitalize ${getTypeColor(selectedItem.type)}`}>
+                      {selectedItem.type.replaceAll('_', ' ')}
+                    </span>
+                    {selectedItem.type === 'web_research' ? (
+                      <button
+                        type="button"
+                        onClick={() => enrichKnowledgeItem(selectedItem.id, true)}
+                        className="px-3 py-1 rounded border border-border text-xs text-text-secondary hover:text-white"
+                        disabled={enrichingItemId === selectedItem.id}
+                      >
+                        {enrichingItemId === selectedItem.id ? 'Analyzing...' : 'Re-run Analysis'}
+                      </button>
+                    ) : null}
+                  </div>
                 }
               >
                 <div className="space-y-4">
@@ -303,11 +415,90 @@ function KnowledgeBase() {
                     {selectedItem.updated_at ? <span>Updated {new Date(selectedItem.updated_at).toLocaleString()}</span> : null}
                   </div>
 
-                  <div className="p-4 rounded-lg bg-white/5 border border-border">
-                    <pre className="whitespace-pre-wrap text-sm text-white font-sans">{selectedItem.full_content || selectedItem.content}</pre>
-                  </div>
+                  {selectedMetadata.url ? (
+                    <a
+                      href={selectedMetadata.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 text-xs text-accent hover:underline"
+                    >
+                      <Eye className="w-3 h-3" />
+                      View source page
+                    </a>
+                  ) : null}
+
+                  {selectedItem.type === 'web_research' && enrichingItemId === selectedItem.id ? (
+                    <div className="p-3 rounded-lg bg-accent/10 border border-accent/20 text-sm text-accent">
+                      Running text intelligence on this source...
+                    </div>
+                  ) : null}
+
+                  {selectedSummary ? (
+                    <div className="p-4 rounded-lg bg-white/5 border border-border">
+                      <p className="text-sm font-semibold mb-2">Summary</p>
+                      <p className="text-sm text-white whitespace-pre-wrap">{selectedSummary}</p>
+                    </div>
+                  ) : null}
+
+                  {enrichError ? (
+                    <div className="p-4 rounded-lg bg-orange-500/10 border border-orange-500/30 text-sm text-orange-200">
+                      {enrichError}
+                    </div>
+                  ) : null}
+
+                  <details className="p-4 rounded-lg bg-white/5 border border-border">
+                    <summary className="cursor-pointer text-sm font-semibold">Source Text</summary>
+                    <pre className="mt-3 whitespace-pre-wrap text-sm text-white font-sans max-h-96 overflow-y-auto">
+                      {selectedItem.full_content || selectedItem.content}
+                    </pre>
+                  </details>
                 </div>
               </DetailSection>
+
+              {selectedAnalysis && (
+                <DetailSection title="Research Intelligence">
+                  <div className="space-y-4">
+                    {selectedAnalysis.sentiment?.label ? (
+                      <div className="p-4 rounded-lg bg-white/5 border border-border">
+                        <p className="text-sm font-semibold mb-2">Sentiment</p>
+                        <p className="text-green-300">
+                          {selectedAnalysis.sentiment.label} {(Number(selectedAnalysis.sentiment.confidence || 0) * 100).toFixed(1)}%
+                        </p>
+                      </div>
+                    ) : null}
+
+                    {selectedAnalysis.classification?.labels?.length ? (
+                      <div className="space-y-2">
+                        <p className="text-sm font-semibold">Classification</p>
+                        {selectedAnalysis.classification.labels.map((label, index) => (
+                          <div key={`${label}-${index}`} className="p-3 rounded-lg bg-white/5 border border-border">
+                            <div className="flex items-center justify-between gap-3">
+                              <span className="capitalize">{label}</span>
+                              <span className="text-accent">
+                                {(Number(selectedAnalysis.classification.scores?.[index] || 0) * 100).toFixed(1)}%
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+
+                    {selectedAnalysis.keywords?.length ? (
+                      <div>
+                        <p className="text-sm font-semibold mb-2">Keywords</p>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedAnalysis.keywords.map((keyword) => (
+                            <span key={keyword} className="px-3 py-1 rounded-full bg-accent/10 text-accent text-sm">
+                              <Tag className="w-3 h-3 inline mr-1" />
+                              {keyword}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                </DetailSection>
+              )}
 
               {selectedItem.type === 'image_analysis' && (
                 <DetailSection title="Image Analysis">
@@ -483,9 +674,8 @@ function KnowledgeBase() {
               <Sparkles className="w-14 h-14 mx-auto mb-4 text-accent" />
               <p className="text-white text-lg font-semibold">Open a record</p>
               <p className="text-text-secondary mt-2">
-                Select a result on the left to inspect the full stored report and model metadata.
+                Select a result on the left to inspect the stored report and model metadata.
               </p>
-              {summaryText ? <p className="hidden">{summaryText}</p> : null}
             </div>
           )}
         </div>

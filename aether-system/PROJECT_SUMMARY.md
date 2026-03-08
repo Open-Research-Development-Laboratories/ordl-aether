@@ -1,43 +1,60 @@
-﻿# AETHER Project Summary
+# AETHER Project Summary
 
-## Overview
+Back to runtime docs: [README.md](README.md) | [Repository index](../docs/INDEX.md)
 
-AETHER (Adaptive Earth & Technology Harmonization Engine) is a NASA-inspired AI platform with a modular FastAPI backend and React frontend.
+## Executive Summary
 
-## Core System
+AETHER is ORDL's integrated runtime for multimodal AI inference and research evidence capture. The system is designed to execute real workflows while preserving outputs in a searchable knowledge layer that supports long-term model development and publication.
 
-- Data ingestion module for external sources and files
-- Image analysis module (classification, detection, embeddings)
-- Text intelligence module (summary, entities, sentiment, classification)
-- Anomaly detection module (statistical + ML ensemble)
-- Hybrid knowledge layer (SQLite + vector search)
-- Event bus and scheduler for orchestration
+## Core Objectives
 
-## Runtime Model
+- Run text, image, and anomaly workflows in one coherent platform.
+- Capture each analysis as retrievable evidence with metadata.
+- Expose operational health, events, and status for reviewability.
+- Provide an implementation path from baseline models to ORDL proprietary experts.
 
-- `backend` service: FastAPI API on port `8000`
-- `frontend` service: Vite UI on port `3000`
-- `redis` service: optional sidecar
-- Orchestration: `podman-compose`
+## System Modules
 
-## Quick Run
+### Text Intelligence
 
-```bash
-cd aether-system
-cp .env.example .env
-podman-compose up -d --build
-```
+Provides summarization, entity extraction, sentiment analysis, and classification for technical documents and reports.
 
-## Access
+### Image Analysis
 
-- Dashboard: http://localhost:3000
-- API docs: http://localhost:8000/docs
-- Health: http://localhost:8000/health
+Provides classification, object detection, and embedding support for scientific and operational imagery.
 
-## Skills Demonstrated
+### Anomaly Detection
 
-- Modular backend architecture
-- Multi-model AI integration
-- Async API design
-- Frontend state-driven dashboards
-- Containerized local orchestration with Podman Compose
+Provides multi-method outlier detection for time-series monitoring and pattern-shift analysis.
+
+### Knowledge Base
+
+Stores full analysis records, metadata, and confidence values for retrieval and longitudinal analysis.
+
+## Operational Model
+
+- Backend service on port `8000`.
+- Frontend service on port `3000`.
+- Optional Redis sidecar for caching workloads.
+- Podman Compose orchestration for reproducible startup and teardown.
+
+## Why This Matters For ORDL
+
+- Reduces fragmentation between model experimentation and institutional memory.
+- Establishes traceability needed for credible research publication.
+- Creates a practical substrate for programmatic model improvement over time.
+- Improves technical communication with partners through reproducible evidence.
+
+## Future Expansion Priorities
+
+- Versioned benchmark datasets by module.
+- Promotion gates tied to evaluation thresholds.
+- Fine-tuned ORDL domain experts with model cards.
+- Automated research reporting and release-level evidence snapshots.
+
+## Related Documents
+
+- [Setup Guide](SETUP.md)
+- [Runtime README](README.md)
+- [Research White Paper](../docs/research/white-paper/ordl-aether-research-white-paper.md)
+- [Evaluation Protocol](../docs/publication/EVALUATION_PROTOCOL.md)

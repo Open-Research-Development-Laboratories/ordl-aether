@@ -1,3 +1,5 @@
+Back to index: [../INDEX.md](../INDEX.md) | [Knowledge Base Catalog](doc_catalog.md)
+
 # MCP Server Audit
 
 - Generated: `2026-03-08T03:45:00Z` (approx)

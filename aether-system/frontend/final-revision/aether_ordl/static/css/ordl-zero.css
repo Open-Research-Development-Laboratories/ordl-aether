@@ -1,0 +1,1031 @@
+/*
+ * ORDL 零式 (ZERO) - Aesthetic System
+ * 
+ * Philosophy: 黒い画面の中の白い影 (A White Shadow in the Black Screen)
+ * Binary header: 01001111 01010010 01000100 01001100 (ORDL)
+ * 
+ * Design Principles:
+ * - Pure black (#000000) background
+ * - Pure white (#FFFFFF) text
+ * - No gradients, shadows, rounded corners
+ * - Monospace fonts for data
+ * - ASCII art status indicators
+ * - Hex codes as decorative elements
+ * - Bilingual JP/EN (JP first, EN second)
+ */
+
+/* =============================================================================
+   CSS VARIABLES - ORDL ZERO COLOR SYSTEM
+   ============================================================================= */
+
+:root {
+    /* Core Colors - Absolute Monochrome */
+    --ordl-black: #000000;
+    --ordl-white: #FFFFFF;
+    --ordl-gray-10: #1A1A1A;
+    --ordl-gray-20: #333333;
+    --ordl-gray-30: #4D4D4D;
+    --ordl-gray-50: #808080;
+    --ordl-gray-70: #B3B3B3;
+    --ordl-gray-90: #E6E6E6;
+    
+    /* Contrast Variable - Adjustable via slider */
+    --ordl-contrast: 1;
+    --ordl-brightness: 100%;
+    
+    /* Typography */
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    --font-jp: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
+    
+    /* Spacing - 8px base grid */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+    --space-3xl: 64px;
+    
+    /* Border - Sharp edges only */
+    --border-width: 1px;
+    --border-color: var(--ordl-gray-20);
+    
+    /* Layout */
+    --header-height: 64px;
+    --sidebar-width: 280px;
+    --content-max-width: 1400px;
+}
+
+/* =============================================================================
+   RESET & BASE
+   ============================================================================= */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--font-sans);
+    font-family: var(--font-jp), var(--font-sans);
+    background-color: var(--ordl-black);
+    color: var(--ordl-white);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Binary Rain Canvas Background */
+#binary-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.08;
+}
+
+/* =============================================================================
+   LAYOUT STRUCTURE
+   ============================================================================= */
+
+.ordl-container {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    grid-template-rows: var(--header-height) 1fr;
+    grid-template-areas:
+        "header header"
+        "sidebar main";
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+}
+
+/* =============================================================================
+   HEADER - BINARY SIGNATURE
+   ============================================================================= */
+
+.ordl-header {
+    grid-area: header;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    background: var(--ordl-black);
+    border-bottom: var(--border-width) solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-lg);
+    z-index: 100;
+}
+
+.ordl-header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+}
+
+/* Binary Brand */
+.ordl-brand {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.ordl-binary {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--ordl-gray-50);
+    user-select: none;
+}
+
+.ordl-binary::before {
+    content: "0x4F52544C";
+    display: block;
+    font-size: 9px;
+    color: var(--ordl-gray-30);
+    margin-bottom: 2px;
+}
+
+.ordl-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.ordl-title-jp {
+    font-family: var(--font-jp);
+    font-weight: 700;
+}
+
+.ordl-title-en {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ordl-gray-50);
+    text-transform: uppercase;
+}
+
+.ordl-tagline {
+    font-family: var(--font-jp);
+    font-size: 10px;
+    color: var(--ordl-gray-50);
+    letter-spacing: 1px;
+}
+
+/* Navigation */
+.ordl-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.ordl-nav-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    color: var(--ordl-gray-70);
+    text-decoration: none;
+    font-size: 12px;
+    border: var(--border-width) solid transparent;
+    transition: all 0.1s ease;
+}
+
+.ordl-nav-link:hover {
+    color: var(--ordl-white);
+    border-color: var(--ordl-gray-20);
+}
+
+.ordl-nav-link.active {
+    color: var(--ordl-white);
+    border-color: var(--ordl-white);
+    background: var(--ordl-gray-10);
+}
+
+.ordl-nav-label {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+}
+
+.ordl-nav-jp {
+    font-family: var(--font-jp);
+}
+
+.ordl-nav-en {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--ordl-gray-50);
+    text-transform: uppercase;
+}
+
+/* Header Right - Controls */
+.ordl-header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+}
+
+/* Status Indicator */
+.ordl-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-family: var(--font-mono);
+    font-size: 11px;
+}
+
+.ordl-status-indicator {
+    width: 8px;
+    height: 8px;
+    background: var(--ordl-white);
+}
+
+.ordl-status-indicator.active::before {
+    content: "[■]";
+    color: var(--ordl-white);
+}
+
+.ordl-status-indicator.inactive::before {
+    content: "[ ]";
+    color: var(--ordl-gray-30);
+}
+
+.ordl-status-indicator.warning::before {
+    content: "[◐]";
+    color: var(--ordl-gray-50);
+}
+
+.ordl-status-indicator.error::before {
+    content: "[✕]";
+    color: var(--ordl-gray-50);
+}
+
+/* =============================================================================
+   CONTRAST SLIDER
+   ============================================================================= */
+
+.ordl-contrast-control {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ordl-gray-50);
+}
+
+.ordl-contrast-control label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.ordl-contrast-label-jp {
+    font-family: var(--font-jp);
+    font-size: 9px;
+}
+
+.ordl-contrast-label-en {
+    font-size: 8px;
+    text-transform: uppercase;
+}
+
+#contrast-slider {
+    width: 80px;
+    height: 2px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--ordl-gray-20);
+    outline: none;
+}
+
+#contrast-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: var(--ordl-white);
+    cursor: pointer;
+    border: none;
+}
+
+#contrast-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: var(--ordl-white);
+    cursor: pointer;
+    border: none;
+}
+
+/* =============================================================================
+   SIDEBAR
+   ============================================================================= */
+
+.ordl-sidebar {
+    grid-area: sidebar;
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    width: var(--sidebar-width);
+    height: calc(100vh - var(--header-height));
+    background: var(--ordl-black);
+    border-right: var(--border-width) solid var(--border-color);
+    padding: var(--space-lg);
+    overflow-y: auto;
+    z-index: 90;
+}
+
+/* Section Headers */
+.ordl-section-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ordl-gray-50);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-sm);
+    border-bottom: var(--border-width) solid var(--ordl-gray-10);
+}
+
+.ordl-section-title::before {
+    content: "// ";
+}
+
+/* Sidebar Menu */
+.ordl-menu {
+    list-style: none;
+    margin-bottom: var(--space-xl);
+}
+
+.ordl-menu-item {
+    margin-bottom: var(--space-xs);
+}
+
+.ordl-menu-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    color: var(--ordl-gray-70);
+    text-decoration: none;
+    font-size: 13px;
+    border-left: 2px solid transparent;
+    transition: all 0.1s ease;
+}
+
+.ordl-menu-link:hover {
+    color: var(--ordl-white);
+    background: var(--ordl-gray-10);
+    border-left-color: var(--ordl-gray-30);
+}
+
+.ordl-menu-link.active {
+    color: var(--ordl-white);
+    background: var(--ordl-gray-10);
+    border-left-color: var(--ordl-white);
+}
+
+.ordl-menu-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+}
+
+/* System Info Block */
+.ordl-sysinfo {
+    background: var(--ordl-gray-10);
+    border: var(--border-width) solid var(--ordl-gray-20);
+    padding: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.ordl-sysinfo-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: var(--space-xs) 0;
+    border-bottom: var(--border-width) solid var(--ordl-gray-20);
+}
+
+.ordl-sysinfo-row:last-child {
+    border-bottom: none;
+}
+
+.ordl-sysinfo-label {
+    color: var(--ordl-gray-50);
+}
+
+.ordl-sysinfo-value {
+    color: var(--ordl-white);
+}
+
+/* Hex Decoration */
+.ordl-hex-decoration {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--ordl-gray-20);
+    line-height: 1.8;
+    margin-top: var(--space-xl);
+    user-select: none;
+}
+
+/* =============================================================================
+   MAIN CONTENT
+   ============================================================================= */
+
+.ordl-main {
+    grid-area: main;
+    margin-left: var(--sidebar-width);
+    margin-top: var(--header-height);
+    padding: var(--space-xl);
+    min-height: calc(100vh - var(--header-height));
+}
+
+.ordl-content {
+    max-width: var(--content-max-width);
+}
+
+/* Page Header */
+.ordl-page-header {
+    margin-bottom: var(--space-2xl);
+    padding-bottom: var(--space-lg);
+    border-bottom: var(--border-width) solid var(--ordl-gray-20);
+}
+
+.ordl-page-title {
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    margin-bottom: var(--space-sm);
+}
+
+.ordl-page-title-jp {
+    font-family: var(--font-jp);
+    font-weight: 700;
+}
+
+.ordl-page-title-en {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--ordl-gray-50);
+    text-transform: uppercase;
+}
+
+.ordl-page-subtitle {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ordl-gray-50);
+}
+
+/* =============================================================================
+   CARDS & PANELS
+   ============================================================================= */
+
+.ordl-card {
+    background: var(--ordl-black);
+    border: var(--border-width) solid var(--ordl-gray-20);
+    margin-bottom: var(--space-lg);
+}
+
+.ordl-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: var(--border-width) solid var(--ordl-gray-20);
+    background: var(--ordl-gray-10);
+}
+
+.ordl-card-title {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.ordl-card-body {
+    padding: var(--space-lg);
+}
+
+/* =============================================================================
+   GRID SYSTEM
+   ============================================================================= */
+
+.ordl-grid {
+    display: grid;
+    gap: var(--space-lg);
+}
+
+.ordl-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.ordl-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.ordl-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 1200px) {
+    .ordl-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .ordl-grid-2,
+    .ordl-grid-3,
+    .ordl-grid-4 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =============================================================================
+   STAT CARDS
+   ============================================================================= */
+
+.ordl-stat {
+    background: var(--ordl-black);
+    border: var(--border-width) solid var(--ordl-gray-20);
+    padding: var(--space-lg);
+}
+
+.ordl-stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-md);
+}
+
+.ordl-stat-label {
+    font-family: var(--font-jp);
+    font-size: 11px;
+    color: var(--ordl-gray-50);
+}
+
+.ordl-stat-label-en {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.ordl-stat-value {
+    font-family: var(--font-mono);
+    font-size: 32px;
+    font-weight: 300;
+    letter-spacing: 2px;
+}
+
+.ordl-stat-ascii {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--ordl-gray-50);
+}
+
+.ordl-stat-footer {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ordl-gray-50);
+    margin-top: var(--space-sm);
+    padding-top: var(--space-sm);
+    border-top: var(--border-width) solid var(--ordl-gray-10);
+}
+
+/* =============================================================================
+   FORMS & INPUTS
+   ============================================================================= */
+
+.ordl-form-group {
+    margin-bottom: var(--space-lg);
+}
+
+.ordl-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: var(--space-sm);
+    color: var(--ordl-gray-70);
+}
+
+.ordl-input,
+.ordl-textarea,
+.ordl-select {
+    width: 100%;
+    background: var(--ordl-black);
+    border: var(--border-width) solid var(--ordl-gray-20);
+    padding: var(--space-md);
+    color: var(--ordl-white);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.1s ease;
+}
+
+.ordl-input:focus,
+.ordl-textarea:focus,
+.ordl-select:focus {
+    border-color: var(--ordl-white);
+}
+
+.ordl-input::placeholder,
+.ordl-textarea::placeholder {
+    color: var(--ordl-gray-30);
+}
+
+.ordl-textarea {
+    min-height: 200px;
+    resize: vertical;
+}
+
+/* File Upload */
+.ordl-upload {
+    border: 2px dashed var(--ordl-gray-20);
+    padding: var(--space-3xl);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+
+.ordl-upload:hover {
+    border-color: var(--ordl-gray-50);
+    background: var(--ordl-gray-10);
+}
+
+.ordl-upload-icon {
+    font-family: var(--font-mono);
+    font-size: 48px;
+    color: var(--ordl-gray-30);
+    margin-bottom: var(--space-md);
+}
+
+/* =============================================================================
+   BUTTONS
+   ============================================================================= */
+
+.ordl-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-xl);
+    background: var(--ordl-white);
+    color: var(--ordl-black);
+    border: none;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+
+.ordl-btn:hover {
+    background: var(--ordl-gray-90);
+}
+
+.ordl-btn:disabled {
+    background: var(--ordl-gray-20);
+    color: var(--ordl-gray-50);
+    cursor: not-allowed;
+}
+
+.ordl-btn-outline {
+    background: transparent;
+    color: var(--ordl-white);
+    border: var(--border-width) solid var(--ordl-white);
+}
+
+.ordl-btn-outline:hover {
+    background: var(--ordl-white);
+    color: var(--ordl-black);
+}
+
+/* =============================================================================
+   TABLES
+   ============================================================================= */
+
+.ordl-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 12px;
+}
+
+.ordl-table thead {
+    background: var(--ordl-gray-10);
+}
+
+.ordl-table th {
+    text-align: left;
+    padding: var(--space-md);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 10px;
+    color: var(--ordl-gray-50);
+    border-bottom: var(--border-width) solid var(--ordl-gray-20);
+}
+
+.ordl-table td {
+    padding: var(--space-md);
+    border-bottom: var(--border-width) solid var(--ordl-gray-10);
+}
+
+.ordl-table tr:hover td {
+    background: var(--ordl-gray-10);
+}
+
+/* =============================================================================
+   LISTS
+   ============================================================================= */
+
+.ordl-list {
+    list-style: none;
+}
+
+.ordl-list-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) 0;
+    border-bottom: var(--border-width) solid var(--ordl-gray-10);
+    font-family: var(--font-mono);
+    font-size: 12px;
+}
+
+.ordl-list-item:last-child {
+    border-bottom: none;
+}
+
+/* =============================================================================
+   ASCII ART ELEMENTS
+   ============================================================================= */
+
+.ordl-ascii-box {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--ordl-gray-70);
+    white-space: pre;
+    overflow-x: auto;
+}
+
+.ordl-ascii-divider {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ordl-gray-20);
+    letter-spacing: 2px;
+    text-align: center;
+    margin: var(--space-xl) 0;
+}
+
+/* Progress Bars (ASCII style) */
+.ordl-progress {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-family: var(--font-mono);
+    font-size: 11px;
+}
+
+.ordl-progress-bar {
+    flex: 1;
+    height: 16px;
+    background: var(--ordl-gray-10);
+    border: var(--border-width) solid var(--ordl-gray-20);
+    position: relative;
+    overflow: hidden;
+}
+
+.ordl-progress-fill {
+    height: 100%;
+    background: var(--ordl-white);
+    transition: width 0.3s ease;
+}
+
+.ordl-progress-text {
+    white-space: pre;
+    font-family: var(--font-mono);
+    font-size: 10px;
+}
+
+/* =============================================================================
+   VISUALIZATION (Canvas/SVG)
+   ============================================================================= */
+
+.ordl-chart-container {
+    background: var(--ordl-black);
+    border: var(--border-width) solid var(--ordl-gray-20);
+    padding: var(--space-lg);
+    height: 300px;
+    position: relative;
+}
+
+.ordl-chart {
+    width: 100%;
+    height: 100%;
+}
+
+/* =============================================================================
+   TAGS & BADGES
+   ============================================================================= */
+
+.ordl-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--ordl-gray-10);
+    border: var(--border-width) solid var(--ordl-gray-20);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.ordl-tag-active {
+    background: var(--ordl-white);
+    color: var(--ordl-black);
+    border-color: var(--ordl-white);
+}
+
+/* =============================================================================
+   TERMINAL / LOG OUTPUT
+   ============================================================================= */
+
+.ordl-terminal {
+    background: var(--ordl-black);
+    border: var(--border-width) solid var(--ordl-gray-20);
+    padding: var(--space-md);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.8;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.ordl-terminal-line {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.ordl-terminal-timestamp {
+    color: var(--ordl-gray-30);
+    min-width: 80px;
+}
+
+.ordl-terminal-level {
+    min-width: 40px;
+}
+
+.ordl-terminal-level.info { color: var(--ordl-gray-70); }
+.ordl-terminal-level.warn { color: var(--ordl-gray-50); }
+.ordl-terminal-level.error { color: var(--ordl-gray-50); }
+
+.ordl-terminal-message {
+    color: var(--ordl-white);
+}
+
+/* =============================================================================
+   ANIMATIONS
+   ============================================================================= */
+
+@keyframes ordl-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.ordl-blink {
+    animation: ordl-blink 1s step-end infinite;
+}
+
+@keyframes ordl-scan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+}
+
+.ordl-scanline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.03);
+    animation: ordl-scan 8s linear infinite;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* =============================================================================
+   UTILITIES
+   ============================================================================= */
+
+.ordl-mono { font-family: var(--font-mono); }
+.ordl-jp { font-family: var(--font-jp); }
+.ordl-upper { text-transform: uppercase; }
+.ordl-small { font-size: 11px; }
+.ordl-muted { color: var(--ordl-gray-50); }
+.ordl-border { border: var(--border-width) solid var(--ordl-gray-20); }
+.ordl-p-0 { padding: 0; }
+.ordl-p-sm { padding: var(--space-sm); }
+.ordl-p-md { padding: var(--space-md); }
+.ordl-p-lg { padding: var(--space-lg); }
+.ordl-mb-sm { margin-bottom: var(--space-sm); }
+.ordl-mb-md { margin-bottom: var(--space-md); }
+.ordl-mb-lg { margin-bottom: var(--space-lg); }
+.ordl-text-right { text-align: right; }
+.ordl-flex { display: flex; }
+.ordl-flex-between { justify-content: space-between; }
+.ordl-items-center { align-items: center; }
+.ordl-gap-sm { gap: var(--space-sm); }
+.ordl-gap-md { gap: var(--space-md); }
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 1200px) {
+    .ordl-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .ordl-sidebar {
+        display: none;
+    }
+    
+    .ordl-main {
+        margin-left: 0;
+    }
+    
+    .ordl-nav {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    :root {
+        --header-height: 56px;
+    }
+    
+    .ordl-page-title {
+        font-size: 20px;
+    }
+    
+    .ordl-stat-value {
+        font-size: 24px;
+    }
+}
+
+/* =============================================================================
+   SCROLLBARS
+   ============================================================================= */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--ordl-black);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--ordl-gray-20);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--ordl-gray-30);
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ordl-gray-20) var(--ordl-black);
+}

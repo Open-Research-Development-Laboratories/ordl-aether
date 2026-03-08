@@ -95,9 +95,13 @@ function SystemStatus({ initialStatus = null }) {
     ])
 
     if (statusResult.status === 'fulfilled') {
+      const coreInitialized = Boolean(statusResult.value.data?.core_initialized)
       setStatus((current) => ({
         ...current,
         ...statusResult.value.data,
+        coreInitialized,
+        core_initialized: coreInitialized,
+        connectionError: false,
       }))
       setLastUpdated(new Date().toISOString())
       setError(
@@ -106,6 +110,7 @@ function SystemStatus({ initialStatus = null }) {
           : null
       )
     } else if (status) {
+      setStatus((current) => ({ ...(current || {}), connectionError: true }))
       setError('Unable to refresh live status. Showing the last known system state.')
     } else {
       setError('Unable to reach the backend status endpoint.')
@@ -126,18 +131,27 @@ function SystemStatus({ initialStatus = null }) {
     )
   }
 
-  const statusState = status?.core_initialized ? 'Initialized' : 'Unavailable'
-  const statusTone = status?.core_initialized ? 'text-green-400' : 'text-red-400'
-  const statusPanelTone = status?.core_initialized ? 'bg-green-500/20' : 'bg-red-500/20'
+  const coreInitialized = Boolean(status?.core_initialized ?? status?.coreInitialized)
+  const statusState = coreInitialized ? 'Initialized' : (status?.connectionError ? 'Offline' : 'Warming')
+  const statusTone = coreInitialized
+    ? 'text-green-400'
+    : status?.connectionError
+      ? 'text-red-400'
+      : 'text-amber-400'
+  const statusPanelTone = coreInitialized
+    ? 'bg-green-500/20'
+    : status?.connectionError
+      ? 'bg-red-500/20'
+      : 'bg-amber-500/20'
   const eventSubscriptions = status?.event_bus?.active_subscriptions || 0
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-3xl font-bold gradient-text">System Status</h1>
+          <h1 className="text-3xl font-bold gradient-text">SYSTEM STATUS / システム状態</h1>
           <p className="text-text-secondary mt-1">
-            Monitor AETHER system health, model loading, and event activity
+            HEALTH MONITOR / 健全性監視
           </p>
         </div>
         <div className="text-sm text-text-secondary flex items-center gap-2">

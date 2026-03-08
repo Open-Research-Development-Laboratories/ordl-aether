@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}テキスト分析 / Text Analysis{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<header class="ordl-page-header">
+    <h1 class="ordl-page-title">
+        <span class="ordl-page-title-jp">テキスト分析</span>
+        <span class="ordl-page-title-en">/ Text Intelligence</span>
+    </h1>
+    <p class="ordl-page-subtitle">
+        NLP分析 / NLP analysis with summarization, NER, and sentiment
+    </p>
+</header>
+
+<!-- Input Section -->
+<div class="ordl-card ordl-mb-lg">
+    <div class="ordl-card-header">
+        <span class="ordl-card-title">
+            テキスト入力 / Text Input
+        </span>
+        <span class="ordl-mono ordl-small ordl-muted">
+            <span id="char-count">0</span> chars
+        </span>
+    </div>
+    <div class="ordl-card-body">
+        <div class="ordl-form-group">
+            <textarea 
+                id="text-input" 
+                class="ordl-textarea" 
+                placeholder="Enter text to analyze... / 分析するテキストを入力してください... (articles, reports, documents)"></textarea>
+        </div>
+        
+        <div class="ordl-flex ordl-flex-between ordl-items-center">
+            <div class="ordl-muted ordl-small ordl-mono">
+                <p>First run may take a few minutes while NLP models download</p>
+            </div>
+            
+            <button id="analyze-btn" class="ordl-btn">
+                <span>[■]</span>
+                <span>分析実行 / ANALYZE</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Results Section -->
+<div id="results-section" style="display: none;">
+    
+    <!-- Summary -->
+    <div class="ordl-card ordl-mb-lg">
+        <div class="ordl-card-header">
+            <span class="ordl-card-title">
+                要約 / Summary
+            </span>
+            <span class="ordl-tag ordl-tag-active">SUMMARIZATION</span>
+        </div>
+        <div class="ordl-card-body">
+            <p id="summary-text" class="ordl-mb-md">
+                このテキストの要約がここに表示されます。/ Summarized text will appear here.
+            </p>
+            
+            <div class="ordl-ascii-divider">
+                -------- -------- -------- -------- -------- -------- --------
+            </div>
+            
+            <div class="ordl-grid ordl-grid-3">
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">ORIGINAL_LENGTH</span>
+                    <span class="ordl-sysinfo-value" id="orig-length">2048</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">SUMMARY_LENGTH</span>
+                    <span class="ordl-sysinfo-value" id="summary-length">256</span>
+                </div>
+                <div class="ordl-sysinfo-row">
+                    <span class="ordl-sysinfo-label">COMPRESSION_RATIO</span>
+                    <span class="ordl-sysinfo-value" id="compression-ratio">87.5%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="ordl-grid ordl-grid-2">
+        <!-- Sentiment Analysis -->
+        <div class="ordl-card ordl-mb-lg">
+            <div class="ordl-card-header">
+                <span class="ordl-card-title">
+                    感情分析 / Sentiment Analysis
+                </span>
+                <span class="ordl-tag">BERT</span>
+            </div>
+            <div class="ordl-card-body">
+                <div class="ordl-flex ordl-gap-md ordl-items-center ordl-mb-md">
+                    <div class="ordl-ascii-box" style="font-size: 48px;">
+    +------+
+    |  :)  |
+    +------+
+                    </div>
+                    
+                    <div>
+                        <div class="ordl-stat-value" id="sentiment-label">POSITIVE</div>
+                        <div class="ordl-muted ordl-mono ordl-small">
+                            Confidence: <span id="sentiment-confidence">92.3%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Classification -->
+        <div class="ordl-card ordl-mb-lg">
+            <div class="ordl-card-header">
+                <span class="ordl-card-title">
+                    分類 / Classification
+                </span>
+                <span class="ordl-tag">ZERO-SHOT</span>
+            </div>
+            <div class="ordl-card-body">
+                <ul class="ordl-list">
+                    <li class="ordl-list-item">
+                        <span>[■]</span>
+                        <span class="ordl-upper">technology</span>
+                        <span class="ordl-muted">89.1%</span>
+                    </li>
+                    <li class="ordl-list-item">
+                        <span>[ ]</span>
+                        <span class="ordl-upper">science</span>
+                        <span class="ordl-muted">65.4%</span>
+                    </li>
+                    <li class="ordl-list-item">
+                        <span>[ ]</span>
+                        <span class="ordl-upper">business</span>
+                        <span class="ordl-muted">43.2%</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Entities -->
+    <div class="ordl-card ordl-mb-lg">
+        <div class="ordl-card-header">
+            <span class="ordl-card-title">
+                固有表現 / Named Entities
+            </span>
+            <span class="ordl-tag">NER</span>
+        </div>
+        <div class="ordl-card-body">
+            <div class="ordl-grid ordl-grid-2">
+                <div class="ordl-sysinfo">
+                    <h4 class="ordl-mono ordl-small ordl-muted ordl-mb-md">ORG (Organization)</h4>
+                    <div class="ordl-flex ordl-gap-sm">
+                        <span class="ordl-tag ordl-tag-active">NASA</span>
+                        <span class="ordl-tag ordl-tag-active">OpenAI</span>
+                    </div>
+                </div>
+                
+                <div class="ordl-sysinfo">
+                    <h4 class="ordl-mono ordl-small ordl-muted ordl-mb-md">PERSON</h4>
+                    <div class="ordl-flex ordl-gap-sm">
+                        <span class="ordl-tag">researcher</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Keywords -->
+    <div class="ordl-card ordl-mb-lg">
+        <div class="ordl-card-header">
+            <span class="ordl-card-title">
+                キーワード / Keywords
+            </span>
+            <span class="ordl-mono ordl-small ordl-muted">4 items</span>
+        </div>
+        <div class="ordl-card-body">
+            <div class="ordl-flex ordl-gap-sm">
+                <span class="ordl-tag ordl-tag-active">AI</span>
+                <span class="ordl-tag ordl-tag-active">MACHINE_LEARNING</span>
+                <span class="ordl-tag">NEURAL_NETWORKS</span>
+                <span class="ordl-tag">RESEARCH</span>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<script>
+    (function() {
+        const textInput = document.getElementById('text-input');
+        const charCount = document.getElementById('char-count');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const resultsSection = document.getElementById('results-section');
+        
+        // Character counter
+        textInput.addEventListener('input', () => {
+            charCount.textContent = textInput.value.length;
+        });
+        
+        // Analyze button
+        analyzeBtn.addEventListener('click', () => {
+            if (!textInput.value.trim()) return;
+            
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = '<span>[◐]</span><span>ANALYZING...</span>';
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Generate fake results based on input
+                const text = textInput.value;
+                const summary = text.length > 100 
+                    ? text.substring(0, 100) + '...' 
+                    : text;
+                
+                document.getElementById('summary-text').textContent = summary;
+                document.getElementById('orig-length').textContent = text.length;
+                document.getElementById('summary-length').textContent = summary.length;
+                
+                const ratio = ((text.length - summary.length) / text.length * 100).toFixed(1);
+                document.getElementById('compression-ratio').textContent = ratio + '%';
+                
+                // Random sentiment
+                const sentiments = ['POSITIVE', 'NEGATIVE', 'NEUTRAL'];
+                const sentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
+                document.getElementById('sentiment-label').textContent = sentiment;
+                document.getElementById('sentiment-confidence').textContent = 
+                    (Math.random() * 30 + 70).toFixed(1) + '%';
+                
+                resultsSection.style.display = 'block';
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = '<span>[■]</span><span>分析実行 / ANALYZE</span>';
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }, 1500);
+        });
+    })();
+</script>
+{% endblock %}
