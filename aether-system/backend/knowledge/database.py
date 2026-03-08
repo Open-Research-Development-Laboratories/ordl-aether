@@ -8,8 +8,10 @@ Inspired by:
 - NEXUS (spatial data platform)
 """
 import logging
+import math
 from datetime import datetime
-from typing import Dict, List
+from pathlib import Path
+from typing import Any, Dict, List
 
 import chromadb
 from chromadb.config import Settings as ChromaSettings
@@ -52,6 +54,70 @@ class KnowledgeBase:
         self.vector_client = None
         self.vector_collection = None
 
+    @staticmethod
+    def _json_safe(value: Any) -> Any:
+        """Convert model outputs into JSON-safe native Python values."""
+        if value is None or isinstance(value, (str, bool, int)):
+            return value
+        if isinstance(value, float):
+            return value if math.isfinite(value) else None
+        if isinstance(value, datetime):
+            return value.isoformat()
+        if isinstance(value, Path):
+            return str(value)
+        if isinstance(value, dict):
+            return {str(key): KnowledgeBase._json_safe(item) for key, item in value.items()}
+        if isinstance(value, (list, tuple, set)):
+            return [KnowledgeBase._json_safe(item) for item in value]
+        if hasattr(value, "item") and callable(value.item):
+            try:
+                return KnowledgeBase._json_safe(value.item())
+            except Exception:
+                pass
+        if hasattr(value, "tolist") and callable(value.tolist):
+            try:
+                return KnowledgeBase._json_safe(value.tolist())
+            except Exception:
+                pass
+        return str(value)
+
+    @classmethod
+    def _normalize_embedding(cls, embedding: List[float] = None) -> List[float] | None:
+        if not embedding:
+            return None
+        normalized = cls._json_safe(embedding)
+        if not isinstance(normalized, list):
+            return None
+
+        output = []
+        for value in normalized:
+            try:
+                numeric = float(value)
+            except (TypeError, ValueError):
+                continue
+            if math.isfinite(numeric):
+                output.append(numeric)
+        return output or None
+
+    @classmethod
+    def _serialize_item(cls, item: KnowledgeItem, similarity: float = None) -> Dict[str, Any]:
+        data = {
+            "id": item.id,
+            "type": item.item_type,
+            "title": item.title,
+            "preview": (item.content or "")[:500],
+            "content": item.content or "",
+            "full_content": item.content or "",
+            "source": item.source,
+            "confidence": item.confidence,
+            "metadata": cls._json_safe(item.metadata_json or {}),
+            "created_at": item.created_at.isoformat(),
+            "updated_at": item.updated_at.isoformat() if item.updated_at else None,
+        }
+        if similarity is not None:
+            data["similarity"] = similarity
+        return data
+
     async def initialize(self):
         """Initialize both SQL and vector databases."""
         logger.info("Initializing Knowledge Base...")
@@ -90,22 +156,30 @@ class KnowledgeBase:
         """
         session = self.Session()
         try:
+            safe_metadata = self._json_safe(metadata or {})
+            safe_embedding = self._normalize_embedding(embedding)
+            safe_confidence = self._json_safe(confidence)
+            if isinstance(safe_confidence, (int, float)):
+                safe_confidence = float(safe_confidence)
+            else:
+                safe_confidence = 1.0
+
             item = KnowledgeItem(
                 item_type=item_type,
                 title=title or f"{item_type}_{datetime.utcnow().timestamp()}",
                 content=content,
                 source=source,
-                metadata_json=metadata or {},
-                confidence=confidence,
+                metadata_json=safe_metadata,
+                confidence=safe_confidence,
             )
             session.add(item)
             session.commit()
 
-            if embedding:
+            if safe_embedding:
                 embedding_id = f"item_{item.id}"
                 self.vector_collection.add(
                     ids=[embedding_id],
-                    embeddings=[embedding],
+                    embeddings=[safe_embedding],
                     metadatas=[
                         {
                             "item_id": item.id,
@@ -162,22 +236,11 @@ class KnowledgeBase:
                         if not item:
                             continue
                         distance = distances[i] if i < len(distances) else 1.0
-                        results.append(
-                            {
-                                "id": item.id,
-                                "type": item.item_type,
-                                "title": item.title,
-                                "content": item.content[:500],
-                                "source": item.source,
-                                "confidence": item.confidence,
-                                "similarity": 1 - distance,
-                                "created_at": item.created_at.isoformat(),
-                            }
-                        )
+                        results.append(self._serialize_item(item, similarity=1 - distance))
                 finally:
                     session.close()
 
-        elif query:
+        else:
             session = self.Session()
             try:
                 stmt = session.query(KnowledgeItem)
@@ -187,24 +250,19 @@ class KnowledgeBase:
                 if source:
                     stmt = stmt.filter(KnowledgeItem.source == source)
 
-                stmt = stmt.filter(
-                    KnowledgeItem.content.ilike(f"%{query}%")
-                    | KnowledgeItem.title.ilike(f"%{query}%")
-                )
-                stmt = stmt.order_by(KnowledgeItem.confidence.desc()).limit(limit)
+                if query:
+                    stmt = stmt.filter(
+                        KnowledgeItem.content.ilike(f"%{query}%")
+                        | KnowledgeItem.title.ilike(f"%{query}%")
+                    )
+                stmt = stmt.order_by(
+                    KnowledgeItem.confidence.desc(),
+                    KnowledgeItem.updated_at.desc(),
+                    KnowledgeItem.id.desc(),
+                ).limit(limit)
 
                 for item in stmt.all():
-                    results.append(
-                        {
-                            "id": item.id,
-                            "type": item.item_type,
-                            "title": item.title,
-                            "content": item.content[:500],
-                            "source": item.source,
-                            "confidence": item.confidence,
-                            "created_at": item.created_at.isoformat(),
-                        }
-                    )
+                    results.append(self._serialize_item(item))
             finally:
                 session.close()
 

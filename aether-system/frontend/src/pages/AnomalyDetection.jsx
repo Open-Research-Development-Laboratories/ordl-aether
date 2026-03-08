@@ -153,17 +153,17 @@ function AnomalyDetection() {
                   <Line 
                     type="monotone" 
                     dataKey="value" 
-                    stroke="#00bcd4" 
+                    stroke="#f59e0b" 
                     strokeWidth={2}
                     dot={(props) => {
                       const { cx, cy, payload } = props
                       if (payload.isAnomaly) {
                         return <circle cx={cx} cy={cy} r={6} fill="#f44336" stroke="#fff" strokeWidth={2} />
                       }
-                      return <circle cx={cx} cy={cy} r={3} fill="#00bcd4" />
+                      return <circle cx={cx} cy={cy} r={3} fill="#f59e0b" />
                     }}
                   />
-                  <ReferenceLine y={result.statistics?.mean} stroke="#7c3aed" strokeDasharray="3 3" label="Mean" />
+                  <ReferenceLine y={result.statistics?.mean} stroke="#f5f2e9" strokeDasharray="3 3" label="Mean" />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -177,7 +177,7 @@ function AnomalyDetection() {
                 <span className="text-text-secondary">Anomaly</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                <div className="w-3 h-3 rounded-full bg-white"></div>
                 <span className="text-text-secondary">Mean</span>
               </div>
             </div>

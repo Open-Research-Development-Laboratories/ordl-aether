@@ -1,0 +1,23 @@
+{
+  "started_utc": "2026-03-08T09:35:46.653007+00:00",
+  "arxiv": {
+    "source": "arxiv",
+    "query": "cat:cs.AI OR cat:cs.CL OR cat:cs.CV OR cat:cs.LG OR cat:stat.ML OR cat:cs.RO OR cat:cs.IR",
+    "start_offset": 10000,
+    "cutoff_utc": "2025-09-09T09:35:46.654272+00:00",
+    "requests": 1,
+    "records_scanned": 0,
+    "ingested": 0,
+    "skipped_existing": 0,
+    "failed": 0,
+    "warnings": [],
+    "errors": [
+      {
+        "request_start": "10000",
+        "error": "HTTP Error 500: Internal Server Error"
+      }
+    ]
+  },
+  "completed_utc": "2026-03-08T09:35:48.137646+00:00",
+  "db_path": "C:\\Users\\Winsock\\Documents\\GitHub\\ordl-aether\\aether-system\\data\\aether.db"
+}

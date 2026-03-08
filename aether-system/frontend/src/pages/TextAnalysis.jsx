@@ -59,7 +59,7 @@ function TextAnalysis() {
           <button
             onClick={analyzeText}
             disabled={analyzing || !text.trim()}
-            className="px-6 py-3 bg-gradient-to-r from-accent to-blue-500 rounded-lg font-semibold text-white flex items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-700 rounded-lg font-semibold text-black flex items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {analyzing ? (
               <>

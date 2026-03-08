@@ -15,7 +15,7 @@ from typing import Any, Dict, List
 
 import torch
 from PIL import Image
-from transformers import pipeline
+from transformers import AutoImageProcessor, AutoModel, pipeline
 
 from core.base_module import BaseModule
 from core.config import settings
@@ -34,6 +34,7 @@ class ImageAnalysisModule(BaseModule):
         self.classifier = None
         self.object_detector = None
         self.embedder = None
+        self.embedder_processor = None
         self._models_loaded = False
         self._loading_error = None
         self._loaded_components = set()
@@ -78,23 +79,43 @@ class ImageAnalysisModule(BaseModule):
         analysis_type = context.get("type", "classification")
 
         try:
-            await self._ensure_models_loaded(analysis_type)
             image = self._prepare_image(self._load_image(image_data))
 
             results = {
                 "success": True,
                 "image_size": image.size,
                 "analysis_type": analysis_type,
+                "component_errors": {},
             }
 
             if analysis_type in {"full", "classification"}:
-                results["classifications"] = await asyncio.to_thread(self._classify_sync, image)
+                try:
+                    await self._ensure_models_loaded("classification")
+                    results["classifications"] = await asyncio.to_thread(self._classify_sync, image)
+                except Exception as exc:
+                    results["component_errors"]["classification"] = str(exc)
 
             if analysis_type in {"full", "detection"}:
-                results["detections"] = await asyncio.to_thread(self._detect_objects_sync, image)
+                try:
+                    await self._ensure_models_loaded("detection")
+                    results["detections"] = await asyncio.to_thread(self._detect_objects_sync, image)
+                except Exception as exc:
+                    results["component_errors"]["detection"] = str(exc)
 
             if analysis_type in {"full", "embedding"}:
-                results["embedding"] = await asyncio.to_thread(self._generate_embedding_sync, image)
+                try:
+                    await self._ensure_models_loaded("embedding")
+                    results["embedding"] = await asyncio.to_thread(self._generate_embedding_sync, image)
+                except Exception as exc:
+                    results["component_errors"]["embedding"] = str(exc)
+
+            if not any(key in results for key in ("classifications", "detections", "embedding")):
+                errors = results["component_errors"]
+                joined = "; ".join(f"{name}: {message}" for name, message in errors.items())
+                raise RuntimeError(joined or "No image analysis components completed successfully")
+
+            if not results["component_errors"]:
+                results.pop("component_errors")
 
             await self.emit_event(
                 "image.analyzed",
@@ -164,11 +185,11 @@ class ImageAnalysisModule(BaseModule):
                 device=device,
             )
         if "embedder" in missing and self.embedder is None:
-            self.embedder = pipeline(
-                "feature-extraction",
-                model="google/vit-base-patch16-224",
-                device=device,
-            )
+            embedder_model_name = "google/vit-base-patch16-224"
+            self.embedder_processor = AutoImageProcessor.from_pretrained(embedder_model_name)
+            self.embedder = AutoModel.from_pretrained(embedder_model_name)
+            self.embedder.to("cuda:0" if device >= 0 else "cpu")
+            self.embedder.eval()
 
     def _load_image(self, image_data: Any) -> Image.Image:
         """Load image from various formats."""
@@ -193,7 +214,7 @@ class ImageAnalysisModule(BaseModule):
         return [
             {
                 "label": item["label"],
-                "confidence": round(item["score"], 4),
+                "confidence": round(float(item["score"]), 4),
                 "category": self._categorize_label(item["label"]),
             }
             for item in results[:5]
@@ -205,26 +226,27 @@ class ImageAnalysisModule(BaseModule):
         return [
             {
                 "label": item["label"],
-                "confidence": round(item["score"], 4),
+                "confidence": round(float(item["score"]), 4),
                 "bbox": item["box"],
             }
             for item in results
-            if item["score"] > 0.5
+            if float(item["score"]) > 0.5
         ]
 
     def _generate_embedding_sync(self, image: Image.Image) -> List[float]:
         """Generate image embedding for similarity search."""
-        features = self.embedder(image)
-        tensor = torch.tensor(features, dtype=torch.float32)
+        inputs = self.embedder_processor(images=image, return_tensors="pt")
+        device = next(self.embedder.parameters()).device
+        inputs = {key: value.to(device) for key, value in inputs.items()}
 
-        # feature-extraction output can vary by model/pipeline version.
-        while tensor.dim() > 2:
-            tensor = tensor[0]
-        if tensor.dim() == 2:
-            pooled = tensor.mean(dim=0)
-        else:
-            pooled = tensor
-        return pooled[:256].tolist()
+        with torch.no_grad():
+            outputs = self.embedder(**inputs)
+
+        pooled = getattr(outputs, "pooler_output", None)
+        if pooled is None:
+            pooled = outputs.last_hidden_state.mean(dim=1)
+
+        return pooled[0][:384].detach().cpu().tolist()
 
     def _categorize_label(self, label: str) -> str:
         """Categorize label into broad categories."""
@@ -247,6 +269,7 @@ class ImageAnalysisModule(BaseModule):
         self.classifier = None
         self.object_detector = None
         self.embedder = None
+        self.embedder_processor = None
         self._models_loaded = False
         self._loading_error = None
         self._loaded_components = set()

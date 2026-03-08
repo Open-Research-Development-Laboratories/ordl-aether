@@ -108,7 +108,7 @@ function ImageAnalysis() {
               <button
                 onClick={analyzeImage}
                 disabled={analyzing}
-                className="px-8 py-4 bg-gradient-to-r from-accent to-blue-500 rounded-lg font-semibold text-white flex items-center gap-3 hover:opacity-90 transition-opacity disabled:opacity-50"
+                className="px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-700 rounded-lg font-semibold text-black flex items-center gap-3 hover:opacity-90 transition-opacity disabled:opacity-50"
               >
                 {analyzing ? (
                   <>
@@ -164,7 +164,7 @@ function ImageAnalysis() {
                       <div className="flex items-center gap-3">
                         <div className="w-32 h-2 bg-white/10 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-accent to-blue-500"
+                            className="h-full bg-gradient-to-r from-amber-400 to-amber-600"
                             style={{ width: `${cls.confidence * 100}%` }}
                           />
                         </div>

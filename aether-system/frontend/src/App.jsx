@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import axios from 'axios'
 
@@ -10,9 +10,13 @@ import AnomalyDetection from './pages/AnomalyDetection'
 import KnowledgeBase from './pages/KnowledgeBase'
 import SystemStatus from './pages/SystemStatus'
 
-// Configure axios
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 const backendBaseUrl = import.meta.env.VITE_BACKEND_BASE_URL || ''
+
+const systemClient = axios.create({
+  baseURL: backendBaseUrl || undefined,
+})
+
 axios.defaults.baseURL = apiBaseUrl
 
 function App() {
@@ -27,30 +31,57 @@ function App() {
 
   const checkSystemStatus = async () => {
     try {
-      const [healthResponse, statusResponse] = await Promise.all([
-        axios.get(`${backendBaseUrl}/health`),
-        axios.get(`${backendBaseUrl}/status`),
+      const [healthResult, statusResult] = await Promise.allSettled([
+        systemClient.get('/health'),
+        systemClient.get('/status'),
       ])
 
-      setSystemStatus({
-        status: healthResponse.data.status,
-        system: healthResponse.data.system,
-        version: healthResponse.data.version,
-        coreInitialized: statusResponse.data.core_initialized,
-        modules: statusResponse.data.modules || {},
-        eventBus: statusResponse.data.event_bus || {},
-        scheduler: statusResponse.data.scheduler || {},
-      })
-      setLoading(false)
+      const checkedAt = new Date().toISOString()
+      const healthPayload = healthResult.status === 'fulfilled' ? healthResult.value.data : null
+      const statusPayload = statusResult.status === 'fulfilled' ? statusResult.value.data : null
+
+      if (!healthPayload && !statusPayload) {
+        throw new Error('Unable to reach health or status endpoints')
+      }
+
+      setSystemStatus((current) => ({
+        status: healthPayload?.status || current?.status || 'degraded',
+        system: healthPayload?.system || current?.system || 'AETHER',
+        version: healthPayload?.version || current?.version || '1.0.0',
+        coreInitialized: statusPayload?.core_initialized ?? current?.coreInitialized ?? false,
+        modules: statusPayload?.modules || current?.modules || {},
+        eventBus: statusPayload?.event_bus || current?.eventBus || {},
+        scheduler: statusPayload?.scheduler || current?.scheduler || {},
+        warmup: statusPayload?.warmup || current?.warmup || {},
+        connectionError: healthResult.status === 'rejected' || statusResult.status === 'rejected',
+        lastChecked: checkedAt,
+      }))
     } catch (error) {
       console.error('System status check failed:', error)
-      setSystemStatus({
-        status: 'offline',
-        coreInitialized: false,
-        modules: {},
-        eventBus: {},
-        scheduler: {},
+      setSystemStatus((current) => {
+        if (current) {
+          return {
+            ...current,
+            status: current.status === 'healthy' ? 'degraded' : current.status,
+            connectionError: true,
+            lastChecked: new Date().toISOString(),
+          }
+        }
+
+        return {
+          status: 'offline',
+          system: 'AETHER',
+          version: '1.0.0',
+          coreInitialized: false,
+          modules: {},
+          eventBus: {},
+          scheduler: {},
+          warmup: {},
+          connectionError: true,
+          lastChecked: new Date().toISOString(),
+        }
       })
+    } finally {
       setLoading(false)
     }
   }
@@ -74,7 +105,7 @@ function App() {
         <Route path="/text" element={<TextAnalysis />} />
         <Route path="/anomalies" element={<AnomalyDetection />} />
         <Route path="/knowledge" element={<KnowledgeBase />} />
-        <Route path="/status" element={<SystemStatus />} />
+        <Route path="/system-status" element={<SystemStatus initialStatus={systemStatus} />} />
       </Routes>
     </Layout>
   )

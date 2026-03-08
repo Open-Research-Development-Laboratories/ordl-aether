@@ -24,8 +24,8 @@ import {
 
 function StatCard({ icon: Icon, title, value, subtitle, trend, color = 'accent' }) {
   const colors = {
-    accent: 'from-cyan-500 to-blue-500',
-    purple: 'from-purple-500 to-pink-500',
+    accent: 'from-amber-400 to-amber-600',
+    purple: 'from-zinc-500 to-zinc-700',
     green: 'from-green-500 to-emerald-500',
     orange: 'from-orange-500 to-red-500'
   }
@@ -203,14 +203,14 @@ function Dashboard({ systemStatus }) {
                 <Line 
                   type="monotone" 
                   dataKey="analyses" 
-                  stroke="#00bcd4" 
+                  stroke="#f59e0b" 
                   strokeWidth={2}
                   dot={false}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="events" 
-                  stroke="#7c3aed" 
+                  stroke="#f5f2e9" 
                   strokeWidth={2}
                   dot={false}
                 />

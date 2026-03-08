@@ -259,7 +259,7 @@ class TextIntelligenceModule(BaseModule):
             grouped.setdefault(entity_type, []).append(
                 {
                     "text": entity["word"],
-                    "confidence": round(entity["score"], 4),
+                    "confidence": round(float(entity["score"]), 4),
                     "start": entity["start"],
                     "end": entity["end"],
                 }
@@ -269,7 +269,7 @@ class TextIntelligenceModule(BaseModule):
     def _analyze_sentiment_sync(self, text: str) -> Dict:
         """Analyze sentiment."""
         result = self.sentiment(self._truncate(text, 512))[0]
-        score = round(result["score"], 4)
+        score = round(float(result["score"]), 4)
         return {
             "label": result["label"],
             "confidence": score,
@@ -279,11 +279,12 @@ class TextIntelligenceModule(BaseModule):
     def _classify_sync(self, text: str, labels: List[str]) -> Dict:
         """Zero-shot classification."""
         result = self.classifier(self._truncate(text, 512), labels)
+        scores = [round(float(score), 4) for score in result["scores"]]
         return {
             "labels": result["labels"],
-            "scores": [round(score, 4) for score in result["scores"]],
+            "scores": scores,
             "top_label": result["labels"][0],
-            "top_confidence": round(result["scores"][0], 4),
+            "top_confidence": scores[0],
         }
 
     def _generate_embedding_sync(self, text: str) -> List[float]:

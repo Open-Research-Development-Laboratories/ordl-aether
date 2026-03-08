@@ -43,3 +43,16 @@ Generate production env with strong secret:
 ```bash
 python scripts/bootstrap_prod_env.py --domain aether.ordl.org
 ```
+
+## R&D Publication
+
+Publication ground:
+
+- [docs/publication/README.md](docs/publication/README.md)
+- [docs/publication/WHITEPAPER_DRAFT.md](docs/publication/WHITEPAPER_DRAFT.md)
+
+Ingest ORDL docs + current AI research:
+
+```bash
+python scripts/ingest_corpora.py
+```

@@ -1,0 +1,17 @@
+{
+  "started_utc": "2026-03-08T09:27:42.257020+00:00",
+  "arxiv": {
+    "source": "arxiv",
+    "query": "cat:cs.AI OR cat:cs.CL OR cat:cs.CV OR cat:cs.LG OR cat:stat.ML OR cat:cs.RO OR cat:cs.IR",
+    "cutoff_utc": "2025-09-09T09:27:42.258975+00:00",
+    "requests": 10,
+    "records_scanned": 1000,
+    "ingested": 1000,
+    "skipped_existing": 0,
+    "failed": 0,
+    "warnings": [],
+    "errors": []
+  },
+  "completed_utc": "2026-03-08T09:28:17.612607+00:00",
+  "db_path": "C:\\Users\\Winsock\\Documents\\GitHub\\ordl-aether\\aether-system\\data\\aether.db"
+}
