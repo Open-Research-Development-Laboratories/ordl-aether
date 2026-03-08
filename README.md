@@ -2,6 +2,9 @@
 
 ORDL AETHER is an applied AI research and engineering platform that combines multimodal inference, knowledge retention, and operational orchestration in one reproducible stack. This repository is organized as a publication-grade technical record for partners, reviewers, and internal engineering teams.
 
+You can access a live version here:
+https://aether.ordl.org/
+
 ## Start Here
 
 - Repository document index: [docs/INDEX.md](docs/INDEX.md)
