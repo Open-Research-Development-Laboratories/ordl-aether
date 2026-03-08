@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Activity, Cpu, Database, Server, Clock, Zap, CheckCircle, AlertCircle, Loader } from 'lucide-react'
 
+const backendBaseUrl = import.meta.env.VITE_BACKEND_BASE_URL || ''
+
 function SystemStatus() {
   const [status, setStatus] = useState(null)
   const [events, setEvents] = useState([])
@@ -16,7 +18,7 @@ function SystemStatus() {
   const fetchStatus = async () => {
     try {
       const [statusRes, eventsRes] = await Promise.all([
-        axios.get('http://localhost:8000/status'),
+        axios.get(`${backendBaseUrl}/status`),
         axios.get('/events/recent?limit=20')
       ])
 

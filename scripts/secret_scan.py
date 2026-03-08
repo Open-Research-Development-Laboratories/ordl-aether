@@ -31,7 +31,7 @@ SECRET_PATTERNS = [
     ),
     (
         re.compile(
-            r"(?i)\b(api[_-]?key|secret|token|password)\b\s*[:=]\s*[\"']?[A-Za-z0-9_/\-+=]{20,}[\"']?"
+            r"(?i)\b(api[_-]?key|secret(?:[_-]?key)?|token|password)\b\s*[:=]\s*[\"']?[A-Za-z0-9_/\-+=]{20,}[\"']?"
         ),
         "Potential hardcoded secret assignment",
     ),
@@ -102,9 +102,9 @@ def iter_files(root: Path):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
         for filename in files:
             path = Path(current_root) / filename
-            if path.suffix.lower() in SKIP_EXTENSIONS:
+            if path.name.startswith(".env"):
                 continue
-            if path.name == ".env.example":
+            if path.suffix.lower() in SKIP_EXTENSIONS:
                 continue
             yield path
 
@@ -174,4 +174,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

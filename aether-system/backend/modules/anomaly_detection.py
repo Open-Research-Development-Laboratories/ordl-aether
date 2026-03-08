@@ -15,6 +15,7 @@ from typing import Any, Dict, List
 import numpy as np
 import pandas as pd
 from scipy import stats
+from sklearn.base import clone
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 
@@ -33,7 +34,6 @@ class AnomalyDetectionModule(BaseModule):
     def __init__(self, event_bus: EventBus):
         super().__init__(event_bus, "anomaly_detection")
         self.models = {}
-        self.scalers = {}
 
     async def initialize(self):
         """Initialize detection models."""
@@ -45,7 +45,6 @@ class AnomalyDetectionModule(BaseModule):
             n_estimators=100,
             n_jobs=-1,
         )
-        self.scalers["default"] = StandardScaler()
 
         self.initialized = True
         logger.info("Anomaly Detection Module ready")
@@ -190,8 +189,8 @@ class AnomalyDetectionModule(BaseModule):
             }
         )
 
-        model = self.models["default"]
-        scaler = self.scalers["default"]
+        model = clone(self.models["default"])
+        scaler = StandardScaler()
         scaled = scaler.fit_transform(features)
 
         predictions = model.fit_predict(scaled)
@@ -277,5 +276,4 @@ class AnomalyDetectionModule(BaseModule):
         """Cleanup."""
         logger.info("Shutting down Anomaly Detection Module")
         self.models.clear()
-        self.scalers.clear()
         self.initialized = False

@@ -42,6 +42,9 @@ Rebuild only when dependencies or container build files change:
 python -m podman_compose up -d --build
 ```
 
+External access is designed for the public host `aether.ordl.org`.
+Frontend proxies API routes to backend, so one public hostname is enough.
+
 Access:
 
 - Dashboard: http://localhost:3000
@@ -71,6 +74,18 @@ Optional pre-push hook install (PowerShell):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File ..\scripts\install_pre_push_hook.ps1
+```
+
+Smoke test (full API + UI checks):
+
+```bash
+python ../scripts/smoke_test.py
+```
+
+Quick benchmark baseline:
+
+```bash
+python ../scripts/benchmark_api.py --requests 40 --concurrency 8
 ```
 
 ## Manual Development

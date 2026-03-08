@@ -1,0 +1,64 @@
+name: Build and Validation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  backend-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile backend and scripts
+        run: |
+          python -m py_compile \
+            aether-system/backend/main.py \
+            aether-system/backend/api/routes.py \
+            aether-system/backend/core/base_module.py \
+            aether-system/backend/core/config.py \
+            aether-system/backend/core/event_bus.py \
+            aether-system/backend/core/scheduler.py \
+            aether-system/backend/knowledge/database.py \
+            aether-system/backend/modules/anomaly_detection.py \
+            aether-system/backend/modules/data_ingestion.py \
+            aether-system/backend/modules/image_analysis.py \
+            aether-system/backend/modules/text_intelligence.py \
+            scripts/secret_scan.py \
+            scripts/smoke_test.py \
+            scripts/benchmark_api.py \
+            scripts/bootstrap_prod_env.py
+
+      - name: Run secret scan gate
+        run: python scripts/secret_scan.py
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: aether-system/frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: aether-system/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build frontend
+        run: npm run build

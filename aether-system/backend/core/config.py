@@ -2,6 +2,7 @@
 AETHER Configuration Management
 Inspired by NASA's mission configuration systems
 """
+import json
 from pathlib import Path
 from typing import List
 
@@ -13,16 +14,14 @@ class Settings(BaseSettings):
     
     # Application
     APP_NAME: str = "AETHER"
+    ENVIRONMENT: str = "development"
     DEBUG: bool = False
     HOST: str = "0.0.0.0"
     PORT: int = 8000
     
     # Security
     SECRET_KEY: str = "your-secret-key-change-in-production"
-    ALLOWED_HOSTS: List[str] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ]
+    ALLOWED_HOSTS: str = "http://localhost:3000,http://127.0.0.1:3000"
     
     # Database
     DATABASE_URL: str = "sqlite:///./data/aether.db"
@@ -49,6 +48,20 @@ class Settings(BaseSettings):
     BASE_DIR: Path = Path(__file__).resolve().parent.parent
     DATA_DIR: Path = BASE_DIR / "data"
     UPLOAD_DIR: Path = DATA_DIR / "uploads"
+
+    @property
+    def allowed_hosts_list(self) -> List[str]:
+        value = (self.ALLOWED_HOSTS or "").strip()
+        if not value:
+            return ["http://localhost:3000", "http://127.0.0.1:3000"]
+        if value.startswith("[") and value.endswith("]"):
+            try:
+                parsed = json.loads(value)
+                if isinstance(parsed, list):
+                    return [str(item).strip() for item in parsed if str(item).strip()]
+            except json.JSONDecodeError:
+                pass
+        return [host.strip() for host in value.split(",") if host.strip()]
     
     class Config:
         env_file = ".env"

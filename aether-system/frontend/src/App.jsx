@@ -11,7 +11,9 @@ import KnowledgeBase from './pages/KnowledgeBase'
 import SystemStatus from './pages/SystemStatus'
 
 // Configure axios
-axios.defaults.baseURL = 'http://localhost:8000/api/v1'
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api/v1'
+const backendBaseUrl = import.meta.env.VITE_BACKEND_BASE_URL || ''
+axios.defaults.baseURL = apiBaseUrl
 
 function App() {
   const [systemStatus, setSystemStatus] = useState(null)
@@ -26,8 +28,8 @@ function App() {
   const checkSystemStatus = async () => {
     try {
       const [healthResponse, statusResponse] = await Promise.all([
-        axios.get('http://localhost:8000/health'),
-        axios.get('http://localhost:8000/status'),
+        axios.get(`${backendBaseUrl}/health`),
+        axios.get(`${backendBaseUrl}/status`),
       ])
 
       setSystemStatus({

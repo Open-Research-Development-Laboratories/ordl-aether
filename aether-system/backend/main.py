@@ -30,6 +30,21 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def validate_runtime_config():
+    """Fail fast on unsafe production config."""
+    if settings.ENVIRONMENT.lower() != "production":
+        return
+
+    secret_lower = settings.SECRET_KEY.lower()
+    if "your-secret-key" in secret_lower or len(settings.SECRET_KEY) < 32:
+        raise RuntimeError(
+            "Unsafe production SECRET_KEY. Set a strong, unique SECRET_KEY before starting."
+        )
+
+    if not settings.NASA_API_KEY or settings.NASA_API_KEY == "DEMO_KEY":
+        logger.warning("NASA_API_KEY is not set for production; upstream quota limits may apply.")
+
+
 class AetherCore:
     """
     Core orchestrator that manages modules, events, and data flow.
@@ -112,6 +127,7 @@ aether_core = AetherCore()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    validate_runtime_config()
     await aether_core.initialize()
     yield
     await aether_core.shutdown()
@@ -126,7 +142,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_HOSTS,
+    allow_origins=settings.allowed_hosts_list,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

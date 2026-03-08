@@ -1,0 +1,36 @@
+{
+  "text": {
+    "total_requests": 20,
+    "success_count": 20,
+    "error_count": 0,
+    "success_rate": 1.0,
+    "duration_seconds": 1.356,
+    "throughput_rps": 14.745,
+    "latency_ms": {
+      "min": 179.86,
+      "avg": 378.14,
+      "p50": 346.56,
+      "p95": 532.19,
+      "p99": 532.22,
+      "max": 532.22
+    },
+    "sample_errors": []
+  },
+  "anomaly": {
+    "total_requests": 20,
+    "success_count": 20,
+    "error_count": 0,
+    "success_rate": 1.0,
+    "duration_seconds": 9.865,
+    "throughput_rps": 2.027,
+    "latency_ms": {
+      "min": 1018.73,
+      "avg": 2758.91,
+      "p50": 2894.99,
+      "p95": 3185.17,
+      "p99": 4111.92,
+      "max": 4111.92
+    },
+    "sample_errors": []
+  }
+}
