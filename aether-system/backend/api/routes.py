@@ -3,13 +3,14 @@ AETHER API Routes
 RESTful API for all system operations
 """
 import asyncio
+from io import BytesIO
 import logging
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel, Field
 
 from core.config import settings
@@ -24,22 +25,33 @@ def get_aether_core():
     return aether_core
 
 
-def _safe_filename_suffix(upload: UploadFile) -> str:
-    suffix = Path(upload.filename or "").suffix.lower()
-    if suffix:
-        return suffix
 
-    if upload.content_type and "/" in upload.content_type:
-        subtype = upload.content_type.split("/", 1)[1].split(";")[0].strip().lower()
-        if subtype == "jpeg":
-            return ".jpg"
-        if subtype:
-            return f".{subtype}"
-    return ".bin"
+def _validated_image_suffix(content: bytes) -> Optional[str]:
+    format_suffix_map = {
+        "JPEG": ".jpg",
+        "PNG": ".png",
+        "WEBP": ".webp",
+        "GIF": ".gif",
+        "BMP": ".bmp",
+        "TIFF": ".tiff",
+    }
+
+    try:
+        with Image.open(BytesIO(content)) as image:
+            image.verify()
+            image_format = (image.format or "").upper()
+    except (UnidentifiedImageError, OSError, ValueError):
+        return None
+
+    return format_suffix_map.get(image_format)
 
 
 async def _persist_uploaded_asset(upload: UploadFile, content: bytes) -> Optional[str]:
-    suffix = _safe_filename_suffix(upload)
+    suffix = _validated_image_suffix(content)
+    if not suffix:
+        logger.warning("Skipping upload persistence for non-image or unsupported image upload: %s", upload.filename)
+        return None
+
     stored_name = f"{uuid4().hex}{suffix}"
     destination = settings.UPLOAD_DIR / stored_name
     await asyncio.to_thread(destination.write_bytes, content)
