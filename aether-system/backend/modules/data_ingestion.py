@@ -11,6 +11,7 @@ import asyncio
 import json
 import logging
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, List
 
 import httpx
@@ -227,18 +228,25 @@ class DataIngestionModule(BaseModule):
         if not file_path:
             return {"success": False, "error": "No file path provided"}
 
+        try:
+            resolved_path = self._resolve_allowed_file_path(file_path)
+        except ValueError as exc:
+            return {"success": False, "error": str(exc)}
+
+        resolved_path_str = str(resolved_path)
+
         if file_type == "auto":
-            if file_path.endswith(".csv"):
+            if resolved_path_str.endswith(".csv"):
                 file_type = "csv"
-            elif file_path.endswith(".json"):
+            elif resolved_path_str.endswith(".json"):
                 file_type = "json"
-            elif file_path.endswith((".png", ".jpg", ".jpeg")):
+            elif resolved_path_str.endswith((".png", ".jpg", ".jpeg")):
                 file_type = "image"
             else:
                 file_type = "text"
 
         if file_type == "csv":
-            frame = await asyncio.to_thread(pd.read_csv, file_path)
+            frame = await asyncio.to_thread(pd.read_csv, resolved_path_str)
             self._update_stats(success=True)
             return {
                 "success": True,
@@ -249,7 +257,7 @@ class DataIngestionModule(BaseModule):
             }
 
         if file_type == "json":
-            data = await asyncio.to_thread(self._read_json_file, file_path)
+            data = await asyncio.to_thread(self._read_json_file, resolved_path_str)
             self._update_stats(success=True)
             return {
                 "success": True,
@@ -259,7 +267,7 @@ class DataIngestionModule(BaseModule):
             }
 
         if file_type == "image":
-            image_info = await asyncio.to_thread(self._read_image_info, file_path)
+            image_info = await asyncio.to_thread(self._read_image_info, resolved_path_str)
             self._update_stats(success=True)
             return {
                 "success": True,
@@ -268,7 +276,7 @@ class DataIngestionModule(BaseModule):
                 "mode": image_info["mode"],
             }
 
-        content = await asyncio.to_thread(self._read_text_file, file_path)
+        content = await asyncio.to_thread(self._read_text_file, resolved_path_str)
         self._update_stats(success=True)
         return {
             "success": True,
@@ -276,6 +284,26 @@ class DataIngestionModule(BaseModule):
             "length": len(content),
             "preview": content[:500],
         }
+
+    @staticmethod
+    def _resolve_allowed_file_path(file_path: str) -> Path:
+        """Resolve and validate paths to files under the configured upload directory."""
+        uploads_root = settings.UPLOAD_DIR.resolve()
+        candidate = Path(file_path).expanduser()
+        if not candidate.is_absolute():
+            candidate = uploads_root / candidate
+
+        resolved = candidate.resolve()
+        if resolved != uploads_root and uploads_root not in resolved.parents:
+            raise ValueError("File access is restricted to the upload directory")
+        if not resolved.is_file():
+            raise ValueError("File not found")
+
+        max_size = settings.MAX_FILE_SIZE_MB * 1024 * 1024
+        if resolved.stat().st_size > max_size:
+            raise ValueError("File exceeds maximum allowed size")
+
+        return resolved
 
     @staticmethod
     def _read_json_file(file_path: str) -> Any:
