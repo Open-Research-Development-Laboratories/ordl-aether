@@ -15,7 +15,8 @@ from typing import Any, Dict, List
 
 import chromadb
 from chromadb.config import Settings as ChromaSettings
-from sqlalchemy import JSON, Column, DateTime, Float, Integer, String, Text, create_engine, func
+from sqlalchemy import JSON, Column, DateTime, Float, Integer, String, Text, create_engine, func, text
+from sqlalchemy.exc import DatabaseError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -270,23 +271,32 @@ class KnowledgeBase:
 
     async def get_stats(self) -> Dict:
         """Get knowledge base statistics."""
-        session = self.Session()
         try:
-            total_items = session.query(KnowledgeItem).count()
-            by_type_rows = (
-                session.query(KnowledgeItem.item_type, func.count(KnowledgeItem.id))
-                .group_by(KnowledgeItem.item_type)
-                .all()
-            )
+            # Use raw aggregate SQL first. In a partially-corrupted sqlite file this
+            # is more resilient than the ORM count() path, which expands into a
+            # subquery selecting every column and can touch damaged pages.
+            with self.engine.connect() as conn:
+                total_items = conn.execute(text("SELECT COUNT(*) FROM knowledge_items")).scalar() or 0
+                by_type_rows = conn.execute(
+                    text(
+                        """
+                        SELECT item_type, COUNT(id) AS item_count
+                        FROM knowledge_items
+                        GROUP BY item_type
+                        """
+                    )
+                ).fetchall()
             by_type = {item_type: count for item_type, count in by_type_rows}
+        except DatabaseError:
+            logger.exception("Knowledge stats raw SQL failed")
+            by_type = {}
+            total_items = 0
 
-            return {
-                "total_items": total_items,
-                "by_type": by_type,
-                "vector_items": self.vector_collection.count() if self.vector_collection else 0,
-            }
-        finally:
-            session.close()
+        return {
+            "total_items": total_items,
+            "by_type": by_type,
+            "vector_items": self.vector_collection.count() if self.vector_collection else 0,
+        }
 
     async def get_item(self, item_id: int) -> Dict[str, Any] | None:
         """Fetch a single knowledge item by ID."""
